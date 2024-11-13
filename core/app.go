@@ -2,6 +2,7 @@ package core
 
 import (
 	"github.com/nanoteck137/kricketune/config"
+	"github.com/nanoteck137/kricketune/player"
 	"github.com/nanoteck137/kricketune/types"
 )
 
@@ -9,6 +10,7 @@ import (
 // File: https://github.com/pocketbase/pocketbase/blob/master/core/app.go
 type App interface {
 	Config() *config.Config
+	Player() *player.Player
 
 	WorkDir() types.WorkDir
 
