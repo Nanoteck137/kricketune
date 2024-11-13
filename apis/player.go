@@ -45,5 +45,14 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return nil, nil
 			},
 		},
+		pyrin.ApiHandler{
+			Name:        "ClearQueue",
+			Method:      "POST",
+			Path:        "/player/clearQueue",
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				app.Player().ClearQueue()
+				return nil, nil
+			},
+		},
 	)
 }

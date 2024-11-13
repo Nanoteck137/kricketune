@@ -3,6 +3,7 @@ package cli
 import (
 	"github.com/go-gst/go-gst/gst"
 	"github.com/nanoteck137/kricketune/apis"
+	"github.com/nanoteck137/kricketune/client/api"
 	"github.com/nanoteck137/kricketune/config"
 	"github.com/nanoteck137/kricketune/core"
 	"github.com/nanoteck137/kricketune/core/log"
@@ -21,21 +22,42 @@ var serveCmd = &cobra.Command{
 			log.Fatal("Failed to create player", "err", err)
 		}
 
+		p.SetVolume(0.5)
+
+		client := api.New("https://dwebble.nanoteck137.net")
+
 		app := core.NewBaseApp(&config.LoadedConfig, p)
 
-		p.AddTrack(player.Track{
-			Name:   "Test",
-			Artist: "Test",
-			Uri:    "https://dwebble.nanoteck137.net/files/tracks/original/infinity-on-high-oykr7v5k/02-the-take-over-the-breaks-over-1726248927.opus",
+		tracks, err := client.GetTracks(api.Options{
+			QueryParams: map[string]string{
+				"filter": "hasTag(\"Good\")",
+				"sort": "random",
+			},
 		})
+		if err != nil {
+			log.Fatal("Failed to get tracks from api", "err", err)
+		}
 
-		p.AddTrack(player.Track{
-			Name:   "Test",
-			Artist: "Test",
-			Uri:    "https://dwebble.nanoteck137.net/files/tracks/original/115-feat-apricot-cae4bw4p/1-115-feat-apricot-1726248749.opus",
-		})
+		for _, t := range tracks.Tracks {
+			p.AddTrack(player.Track{
+				Name:   t.Name,
+				Artist: t.ArtistName,
+				Uri:    t.MobileMediaUrl,
+			})
+		}
 
-		p.PrepareChange()
+		// p.AddTrack(player.Track{
+		// 	Name:   "Test",
+		// 	Artist: "Test",
+		// 	Uri:    "https://dwebble.nanoteck137.net/files/tracks/original/infinity-on-high-oykr7v5k/02-the-take-over-the-breaks-over-1726248927.opus",
+		// })
+		//
+		// p.AddTrack(player.Track{
+		// 	Name:   "Test",
+		// 	Artist: "Test",
+		// 	Uri:    "https://dwebble.nanoteck137.net/files/tracks/original/115-feat-apricot-cae4bw4p/1-115-feat-apricot-1726248749.opus",
+		// })
+
 		p.Reset()
 
 		err = player.Launch(p)

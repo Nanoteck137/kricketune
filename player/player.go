@@ -18,6 +18,7 @@ type Track struct {
 
 type Player struct {
 	playbin *gst.Element
+	volume  *gst.Element
 
 	queueMutex sync.Mutex
 	index      int
@@ -25,14 +26,24 @@ type Player struct {
 }
 
 func New() (*Player, error) {
-	playbin, err := createPlayer()
+	elements, err := createPlayer()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Player{
-		playbin: playbin,
+		playbin: elements.playbin,
+		volume:  elements.volume,
 	}, nil
+}
+
+
+func (p *Player) SetVolume(vol float32) {
+	p.volume.Set("volume", vol)
+}
+
+func (p *Player) SetMute(mute bool) {
+	p.volume.Set("mute", mute)
 }
 
 func (p *Player) PrepareChange() {
@@ -41,11 +52,13 @@ func (p *Player) PrepareChange() {
 
 func (p *Player) SetURI(uri string) {
 	p.playbin.Set("uri", uri)
-	p.playbin.SetState(gst.StatePlaying)
 }
 
 func (p *Player) PlayTrack(track Track) {
+	log.Info("Now Playing", "name", track.Name, "artist", track.Artist)
+
 	p.SetURI(track.Uri)
+	p.Play()
 }
 
 // TODO(patrik): Rename?
@@ -66,6 +79,11 @@ func (p *Player) NextTrack() {
 	p.queueMutex.Lock()
 	defer p.queueMutex.Unlock()
 
+	fmt.Printf("len(p.tracks): %v\n", len(p.tracks))
+	if len(p.tracks) <= 0 {
+		return
+	}
+
 	p.index++
 	if p.index >= len(p.tracks) {
 		p.index = 0
@@ -77,6 +95,10 @@ func (p *Player) NextTrack() {
 func (p *Player) PrevTrack() {
 	p.queueMutex.Lock()
 	defer p.queueMutex.Unlock()
+
+	if len(p.tracks) <= 0 {
+		return
+	}
 
 	p.index--
 	if p.index < 0 {
@@ -92,6 +114,13 @@ func (p *Player) CurrentTrack() Track {
 
 func (p *Player) AddTrack(track Track) {
 	p.tracks = append(p.tracks, track)
+}
+
+func (p *Player) ClearQueue() {
+	p.tracks = nil
+	p.index = 0
+	p.PrepareChange()
+	p.SetURI("")
 }
 
 func Launch(player *Player) error {
@@ -147,7 +176,8 @@ func createOutputs() (*gst.Bin, error) {
 	outputs.AddPad(ghostPad.Pad)
 
 	// out := "autoaudiosink"
-	out := "audioresample ! audioconvert ! audio/x-raw,rate=48000,channels=2,format=S16LE ! autoaudiosink"
+	// out := "audioresample ! audioconvert ! audio/x-raw,rate=48000,channels=2,format=S16LE ! autoaudiosink"
+	out := "audioresample ! audioconvert ! audio/x-raw,rate=48000,channels=2,format=S16LE ! filesink location=/run/snapserver/kricketune"
 	output, err := gst.NewBinFromString(out, true)
 	if err != nil {
 		return nil, err
@@ -168,10 +198,15 @@ func createOutputs() (*gst.Bin, error) {
 	return outputs, nil
 }
 
-func createPlayer() (*gst.Element, error) {
+type Elements struct {
+	playbin *gst.Element
+	volume  *gst.Element
+}
+
+func createPlayer() (Elements, error) {
 	playbin, err := gst.NewElement("playbin")
 	if err != nil {
-		return nil, err
+		return Elements{}, err
 	}
 
 	playbin.Set("flags", gst.StreamTypeAudio)
@@ -184,19 +219,17 @@ func createPlayer() (*gst.Element, error) {
 
 	queue, err := gst.NewElement("queue")
 	if err != nil {
-		return nil, err
+		return Elements{}, err
 	}
 
 	volume, err := gst.NewElement("volume")
 	if err != nil {
-		return nil, err
+		return Elements{}, err
 	}
-
-	volume.Set("volume", 0.01)
 
 	outputs, err := createOutputs()
 	if err != nil {
-		return nil, err
+		return Elements{}, err
 	}
 
 	audioSink.AddMany(queue, outputs.Element, volume)
@@ -210,5 +243,8 @@ func createPlayer() (*gst.Element, error) {
 
 	playbin.Set("audio-sink", audioSink)
 
-	return playbin, nil
+	return Elements{
+		playbin: playbin,
+		volume:  volume,
+	}, nil
 }
