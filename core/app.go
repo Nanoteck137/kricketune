@@ -11,6 +11,7 @@ import (
 type App interface {
 	Config() *config.Config
 	Player() *player.Player
+	Queue() *DwebbleQueue
 
 	WorkDir() types.WorkDir
 

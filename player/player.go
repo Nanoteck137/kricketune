@@ -2,7 +2,6 @@ package player
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/go-gst/go-glib/glib"
 	"github.com/go-gst/go-gst/gst"
@@ -10,40 +9,64 @@ import (
 	"github.com/nanoteck137/kricketune/core/log"
 )
 
+type Queue interface {
+	Next()
+	Prev()
+	CurrentTrack() (Track, bool)
+}
+
 type Track struct {
 	Name   string
 	Artist string
+	Album  string
 	Uri    string
 }
 
 type Player struct {
-	playbin *gst.Element
-	volume  *gst.Element
+	playbin       *gst.Element
+	volumeControl *gst.Element
 
-	queueMutex sync.Mutex
-	index      int
-	tracks     []Track
+	volume float32
+	mute   bool
+
+	// queueMutex sync.Mutex
+	// index      int
+	// tracks     []Track
+	queue Queue
 }
 
-func New() (*Player, error) {
-	elements, err := createPlayer()
+func New(audioOutput string) (*Player, error) {
+	elements, err := createPlayer(audioOutput)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Player{
-		playbin: elements.playbin,
-		volume:  elements.volume,
+		playbin:       elements.playbin,
+		volumeControl: elements.volume,
 	}, nil
 }
 
+func (p *Player) SetQueue(queue Queue) {
+	p.queue = queue
+}
 
 func (p *Player) SetVolume(vol float32) {
-	p.volume.Set("volume", vol)
+	p.volumeControl.Set("volume", vol)
+	p.volume = vol
+}
+
+func (p *Player) GetVolume() float32 {
+	return p.volume
 }
 
 func (p *Player) SetMute(mute bool) {
-	p.volume.Set("mute", mute)
+	p.volumeControl.Set("mute", mute)
+	p.mute = mute
+}
+
+func (p *Player) GetMute() bool {
+	return p.mute
 }
 
 func (p *Player) PrepareChange() {
@@ -55,16 +78,23 @@ func (p *Player) SetURI(uri string) {
 }
 
 func (p *Player) PlayTrack(track Track) {
-	log.Info("Now Playing", "name", track.Name, "artist", track.Artist)
+	log.Info("Now Playing", "name", track.Name, "artist", track.Artist, "album", track.Album)
 
 	p.SetURI(track.Uri)
 	p.Play()
 }
 
-// TODO(patrik): Rename?
-func (p *Player) Reset() {
+func (p *Player) Start() {
 	p.PrepareChange()
-	p.PlayTrack(p.CurrentTrack())
+
+	track, ok := p.queue.CurrentTrack()
+	if ok {
+		p.PlayTrack(track)
+	}
+}
+
+func (p *Player) Stop() {
+	p.PrepareChange()
 }
 
 func (p *Player) Play() {
@@ -76,51 +106,19 @@ func (p *Player) Pause() {
 }
 
 func (p *Player) NextTrack() {
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-
-	fmt.Printf("len(p.tracks): %v\n", len(p.tracks))
-	if len(p.tracks) <= 0 {
-		return
+	p.queue.Next()
+	track, ok := p.queue.CurrentTrack()
+	if ok {
+		p.PlayTrack(track)
 	}
-
-	p.index++
-	if p.index >= len(p.tracks) {
-		p.index = 0
-	}
-
-	p.PlayTrack(p.CurrentTrack())
 }
 
 func (p *Player) PrevTrack() {
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-
-	if len(p.tracks) <= 0 {
-		return
+	p.queue.Prev()
+	track, ok := p.queue.CurrentTrack()
+	if ok {
+		p.PlayTrack(track)
 	}
-
-	p.index--
-	if p.index < 0 {
-		p.index = 0
-	}
-
-	p.PlayTrack(p.CurrentTrack())
-}
-
-func (p *Player) CurrentTrack() Track {
-	return p.tracks[p.index]
-}
-
-func (p *Player) AddTrack(track Track) {
-	p.tracks = append(p.tracks, track)
-}
-
-func (p *Player) ClearQueue() {
-	p.tracks = nil
-	p.index = 0
-	p.PrepareChange()
-	p.SetURI("")
 }
 
 func Launch(player *Player) error {
@@ -151,6 +149,8 @@ func Launch(player *Player) error {
 		return true
 	})
 
+	player.Start()
+
 	go func() {
 		err := mainLoop.RunError()
 		if err != nil {
@@ -161,7 +161,7 @@ func Launch(player *Player) error {
 	return nil
 }
 
-func createOutputs() (*gst.Bin, error) {
+func createOutputs(audioOutput string) (*gst.Bin, error) {
 	outputs := gst.NewBin("outputs")
 
 	tee, err := gst.NewElement("tee")
@@ -175,10 +175,7 @@ func createOutputs() (*gst.Bin, error) {
 	ghostPad := gst.NewGhostPad("sink", teeSink)
 	outputs.AddPad(ghostPad.Pad)
 
-	// out := "autoaudiosink"
-	// out := "audioresample ! audioconvert ! audio/x-raw,rate=48000,channels=2,format=S16LE ! autoaudiosink"
-	out := "audioresample ! audioconvert ! audio/x-raw,rate=48000,channels=2,format=S16LE ! filesink location=/run/snapserver/kricketune"
-	output, err := gst.NewBinFromString(out, true)
+	output, err := gst.NewBinFromString(audioOutput, true)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +200,7 @@ type Elements struct {
 	volume  *gst.Element
 }
 
-func createPlayer() (Elements, error) {
+func createPlayer(audioOutput string) (Elements, error) {
 	playbin, err := gst.NewElement("playbin")
 	if err != nil {
 		return Elements{}, err
@@ -227,7 +224,7 @@ func createPlayer() (Elements, error) {
 		return Elements{}, err
 	}
 
-	outputs, err := createOutputs()
+	outputs, err := createOutputs(audioOutput)
 	if err != nil {
 		return Elements{}, err
 	}
