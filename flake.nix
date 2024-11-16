@@ -38,7 +38,7 @@
             pkgs.pkg-config
           ];
 
-          buildInputs = [
+          propagatedBuildInputs = [
             pkgs.gst_all_1.gstreamer
             pkgs.gst_all_1.gst-plugins-base
             pkgs.gst_all_1.gst-plugins-good

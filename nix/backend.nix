@@ -38,6 +38,7 @@ in
 
     audioOutput = mkOption {
       type = types.str;
+      default = "autoaudiosink";
       description = "audio output pipeline (gstreamer)";
     };
 
