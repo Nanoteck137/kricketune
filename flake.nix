@@ -34,7 +34,23 @@
             "-X github.com/nanoteck137/kricketune.Commit=${self.dirtyRev or self.rev or "no-commit"}"
           ];
 
-          vendorHash = "";
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
+
+          buildInputs = [
+            pkgs.gst_all_1.gstreamer
+            pkgs.gst_all_1.gst-plugins-base
+            pkgs.gst_all_1.gst-plugins-good
+            pkgs.gst_all_1.gst-plugins-bad
+            pkgs.gst_all_1.gst-plugins-ugly
+            pkgs.gst_all_1.gst-libav
+            pkgs.gst_all_1.gst-plugins-rs
+            pkgs.glib-networking
+            pkgs.openssl
+          ];
+
+          vendorHash = "sha256-yN7nwgHz/1GeVGBZpLfxHJIfan3FMwWG/E8KFGraOVA=";
         };
 
         frontend = pkgs.buildNpmPackage {
@@ -42,7 +58,7 @@
           version = fullVersion;
 
           src = gitignore.lib.gitignoreSource ./web;
-          npmDepsHash = "";
+          npmDepsHash = "sha256-ps6w+0ZRBkZjLLnsL+/NURcAF2He/MJzVI98486k4WA=";
 
           PUBLIC_VERSION=version;
           PUBLIC_COMMIT=self.rev or "dirty";
