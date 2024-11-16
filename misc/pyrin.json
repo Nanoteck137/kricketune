@@ -1,0 +1,156 @@
+{
+  "types": [
+    {
+      "name": "Status",
+      "extend": "",
+      "fields": [
+        {
+          "name": "trackName",
+          "type": "string",
+          "omit": false
+        },
+        {
+          "name": "trackArtist",
+          "type": "string",
+          "omit": false
+        },
+        {
+          "name": "trackAlbum",
+          "type": "string",
+          "omit": false
+        },
+        {
+          "name": "isPlaying",
+          "type": "bool",
+          "omit": false
+        },
+        {
+          "name": "volume",
+          "type": "int",
+          "omit": false
+        },
+        {
+          "name": "mute",
+          "type": "bool",
+          "omit": false
+        },
+        {
+          "name": "queueIndex",
+          "type": "int",
+          "omit": false
+        },
+        {
+          "name": "numTracks",
+          "type": "int",
+          "omit": false
+        }
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "GetSets",
+      "method": "GET",
+      "path": "/api/v1/player/sets",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "Status",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "ChangeSet",
+      "method": "POST",
+      "path": "/api/v1/player/sets/:index",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "Status",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "GetStatus",
+      "method": "GET",
+      "path": "/api/v1/player/status",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "Status",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "Play",
+      "method": "POST",
+      "path": "/api/v1/player/play",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "Pause",
+      "method": "POST",
+      "path": "/api/v1/player/pause",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "Next",
+      "method": "POST",
+      "path": "/api/v1/player/next",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "Prev",
+      "method": "POST",
+      "path": "/api/v1/player/prev",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "",
+      "bodyType": "",
+      "requireFormData": false
+    },
+    {
+      "name": "ClearQueue",
+      "method": "POST",
+      "path": "/api/v1/player/clearQueue",
+      "errorTypes": [
+        "ROUTE_NOT_FOUND",
+        "UNKNOWN_ERROR",
+        "VALIDATION_ERROR"
+      ],
+      "responseType": "",
+      "bodyType": "",
+      "requireFormData": false
+    }
+  ]
+}

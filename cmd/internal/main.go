@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/nanoteck137/kricketune/apis"
 	"github.com/nanoteck137/pyrin/spec"
 	"github.com/nanoteck137/pyrin/tools/gen"
 	"github.com/spf13/cobra"
@@ -38,11 +40,6 @@ var genCmd = &cobra.Command{
 		}
 
 		fmt.Println("Wrote 'misc/pyrin.json'")
-
-		err = gen.GenerateGolang(s, "cmd/dwebble-dl/api")
-		if err != nil {
-			log.Fatal("Failed to generate golang code", err)
-		}
 
 		err = gen.GenerateTypescript(s, "web/src/lib/api")
 		if err != nil {
