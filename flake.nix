@@ -34,11 +34,13 @@
             "-X github.com/nanoteck137/kricketune.Commit=${self.dirtyRev or self.rev or "no-commit"}"
           ];
 
+          strictDeps = true;
+
           nativeBuildInputs = [
             pkgs.pkg-config
           ];
 
-          propagatedBuildInputs = [
+          buildInputs = [
             pkgs.gst_all_1.gstreamer
             pkgs.gst_all_1.gst-plugins-base
             pkgs.gst_all_1.gst-plugins-good
