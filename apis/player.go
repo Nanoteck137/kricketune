@@ -9,8 +9,8 @@ import (
 )
 
 type Set struct {
-	Name string `json:"name"`
-	Index int `json:"index"`
+	Name  string `json:"name"`
+	Index int    `json:"index"`
 }
 
 type Sets struct {
@@ -22,8 +22,9 @@ type Status struct {
 	TrackArtist string `json:"trackArtist"`
 	TrackAlbum  string `json:"trackAlbum"`
 
-	Volume float32 `json:"volume"`
-	Mute   bool    `json:"mute"`
+	IsPlaying bool    `json:"isPlaying"`
+	Volume    float32 `json:"volume"`
+	Mute      bool    `json:"mute"`
 
 	QueueIndex int `json:"queueIndex"`
 	NumTracks  int `json:"numTracks"`
@@ -87,6 +88,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 					TrackName:   currentTrack.Name,
 					TrackArtist: currentTrack.Artist,
 					TrackAlbum:  currentTrack.Album,
+					IsPlaying:   app.Player().IsPlaying(),
 					Volume:      app.Player().GetVolume(),
 					Mute:        app.Player().GetMute(),
 					// QueueIndex:  app.Player().CurrentQueueIndex(),

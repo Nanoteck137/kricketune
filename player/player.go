@@ -69,6 +69,10 @@ func (p *Player) GetMute() bool {
 	return p.mute
 }
 
+func (p *Player) IsPlaying() bool {
+	return p.playbin.GetCurrentState() == gst.StatePlaying
+}
+
 func (p *Player) PrepareChange() {
 	p.playbin.SetState(gst.StateReady)
 }
