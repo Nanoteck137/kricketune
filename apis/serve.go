@@ -15,7 +15,7 @@ func RegisterHandlers(app core.App, router pyrin.Router) {
 	InstallHandlers(app, g)
 
 	g.Register(pyrin.NormalHandler{
-		Method:      http.MethodPost,
+		Method:      http.MethodGet,
 		Path:        "/sse",
 		HandlerFunc: func(c pyrin.Context) error {
 			w := c.Response()
