@@ -9,10 +9,7 @@ with lib; let
     dwebble_address = "${cfg.dwebbleAddress}"
     audio_output = "${cfg.audioOutput}"
 
-    [[filter_sets]]
-    name = "test"
-    filter = "hasTag(\"Good\")"
-    sort = "random"
+    ${cfg.extraConfig}
   '';
 in
 {
@@ -40,6 +37,12 @@ in
       type = types.str;
       default = "autoaudiosink";
       description = "audio output pipeline (gstreamer)";
+    };
+
+    extraConfig = mkOption {
+      type = types.str;
+      default = "";
+      description = "extra config";
     };
 
     package = mkOption {
