@@ -38,6 +38,7 @@
 
           nativeBuildInputs = [
             pkgs.pkg-config
+            pkgs.wrapGAppsNoGuiHook
           ];
 
           buildInputs = [
