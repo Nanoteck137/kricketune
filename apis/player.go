@@ -37,7 +37,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			Name:     "GetSets",
 			Method:   http.MethodGet,
 			Path:     "/player/sets",
-			DataType: Status{},
+			DataType: Sets{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 
 				res := Sets{
@@ -58,7 +58,6 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			Name:     "ChangeSet",
 			Method:   http.MethodPost,
 			Path:     "/player/sets/:index",
-			DataType: Status{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				indexStr := c.Param("index")
 				index, err := strconv.Atoi(indexStr)
