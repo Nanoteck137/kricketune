@@ -47,6 +47,7 @@
             air
             go
             gopls
+            nodejs
 
             pkg-config
             gst_all_1.gstreamer
