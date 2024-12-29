@@ -9,7 +9,7 @@ require (
 	github.com/go-gst/go-gst v1.4.0
 	github.com/golang-cz/devslog v0.0.8
 	github.com/kr/pretty v0.3.1
-	github.com/nanoteck137/pyrin v0.8.8
+	github.com/nanoteck137/pyrin v0.14.2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 )
@@ -33,6 +33,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/nanoteck137/validate v0.0.0-20241129211421-90ceb11de343 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect

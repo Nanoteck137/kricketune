@@ -34,10 +34,10 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 	// TODO(patrik): Use http.Method*
 	group.Register(
 		pyrin.ApiHandler{
-			Name:     "GetSets",
-			Method:   http.MethodGet,
-			Path:     "/player/sets",
-			DataType: Sets{},
+			Name:         "GetSets",
+			Method:       http.MethodGet,
+			Path:         "/player/sets",
+			ResponseType: Sets{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 
 				res := Sets{
@@ -55,9 +55,9 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			},
 		},
 		pyrin.ApiHandler{
-			Name:     "ChangeSet",
-			Method:   http.MethodPost,
-			Path:     "/player/sets/:index",
+			Name:   "ChangeSet",
+			Method: http.MethodPost,
+			Path:   "/player/sets/:index",
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				indexStr := c.Param("index")
 				index, err := strconv.Atoi(indexStr)
@@ -79,7 +79,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			Name:     "GetStatus",
 			Method:   "GET",
 			Path:     "/player/status",
-			DataType: Status{},
+			ResponseType: Status{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				currentTrack, _ := app.Queue().CurrentTrack()
 

@@ -17,6 +17,22 @@ func (c *Client) GetArtists(options Options) (*GetArtists, error) {
 	return Request[GetArtists](data)
 }
 
+func (c *Client) SearchArtists(options Options) (*GetArtists, error) {
+	path := "/api/v1/artists/search"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetArtists](data)
+}
+
 func (c *Client) GetArtistById(id string, options Options) (*GetArtistById, error) {
 	path := Sprintf("/api/v1/artists/%v", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
@@ -49,8 +65,56 @@ func (c *Client) GetArtistAlbums(id string, options Options) (*GetArtistAlbumsBy
 	return Request[GetArtistAlbumsById](data)
 }
 
+func (c *Client) EditArtist(id string, body EditArtistBody, options Options) (*any, error) {
+	path := Sprintf("/api/v1/artists/%v", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "PATCH",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) CreateArtist(body CreateArtistBody, options Options) (*CreateArtist, error) {
+	path := "/api/v1/artists"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[CreateArtist](data)
+}
+
 func (c *Client) GetAlbums(options Options) (*GetAlbums, error) {
 	path := "/api/v1/albums"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetAlbums](data)
+}
+
+func (c *Client) SearchAlbums(options Options) (*GetAlbums, error) {
+	path := "/api/v1/albums/search"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
 		return nil, err
@@ -81,7 +145,7 @@ func (c *Client) GetAlbumById(id string, options Options) (*GetAlbumById, error)
 	return Request[GetAlbumById](data)
 }
 
-func (c *Client) GetAlbumTracks(id string, options Options) (*GetAlbumTracksById, error) {
+func (c *Client) GetAlbumTracks(id string, options Options) (*GetAlbumTracks, error) {
 	path := Sprintf("/api/v1/albums/%v/tracks", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -94,10 +158,10 @@ func (c *Client) GetAlbumTracks(id string, options Options) (*GetAlbumTracksById
 		Token: c.token,
 		Body: nil,
 	}
-	return Request[GetAlbumTracksById](data)
+	return Request[GetAlbumTracks](data)
 }
 
-func (c *Client) EditAlbum(id string, body PatchAlbumBody, options Options) (*any, error) {
+func (c *Client) EditAlbum(id string, body EditAlbumBody, options Options) (*any, error) {
 	path := Sprintf("/api/v1/albums/%v", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -129,8 +193,8 @@ func (c *Client) DeleteAlbum(id string, options Options) (*any, error) {
 	return Request[any](data)
 }
 
-func (c *Client) ImportAlbum(body PostAlbumImportBody, options Options) (*PostAlbumImport, error) {
-	path := "/api/v1/albums/import"
+func (c *Client) CreateAlbum(body CreateAlbumBody, options Options) (*CreateAlbum, error) {
+	path := "/api/v1/albums"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
 		return nil, err
@@ -142,11 +206,11 @@ func (c *Client) ImportAlbum(body PostAlbumImportBody, options Options) (*PostAl
 		Token: c.token,
 		Body: body,
 	}
-	return Request[PostAlbumImport](data)
+	return Request[CreateAlbum](data)
 }
 
-func (c *Client) ImportTrackToAlbum(id string, options Options) (*any, error) {
-	path := Sprintf("/api/v1/albums/%v/import/track", id)
+func (c *Client) GetTracks(options Options) (*GetTracks, error) {
+	path := "/api/v1/tracks"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
 		return nil, err
@@ -154,15 +218,15 @@ func (c *Client) ImportTrackToAlbum(id string, options Options) (*any, error) {
 
 	data := RequestData{
 		Url: url,
-		Method: "POST",
+		Method: "GET",
 		Token: c.token,
 		Body: nil,
 	}
-	return Request[any](data)
+	return Request[GetTracks](data)
 }
 
-func (c *Client) GetTracks(options Options) (*GetTracks, error) {
-	path := "/api/v1/tracks"
+func (c *Client) SearchTracks(options Options) (*GetTracks, error) {
+	path := "/api/v1/tracks/search"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
 		return nil, err
@@ -209,7 +273,7 @@ func (c *Client) RemoveTrack(id string, options Options) (*any, error) {
 	return Request[any](data)
 }
 
-func (c *Client) EditTrack(id string, body PatchTrackBody, options Options) (*any, error) {
+func (c *Client) EditTrack(id string, body EditTrackBody, options Options) (*any, error) {
 	path := Sprintf("/api/v1/tracks/%v", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -225,8 +289,8 @@ func (c *Client) EditTrack(id string, body PatchTrackBody, options Options) (*an
 	return Request[any](data)
 }
 
-func (c *Client) GetTags(options Options) (*GetTags, error) {
-	path := "/api/v1/tags"
+func (c *Client) DeleteTrack(id string, options Options) (*any, error) {
+	path := Sprintf("/api/v1/tracks/%v", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
 		return nil, err
@@ -234,14 +298,14 @@ func (c *Client) GetTags(options Options) (*GetTags, error) {
 
 	data := RequestData{
 		Url: url,
-		Method: "GET",
+		Method: "DELETE",
 		Token: c.token,
 		Body: nil,
 	}
-	return Request[GetTags](data)
+	return Request[any](data)
 }
 
-func (c *Client) Signup(body PostAuthSignupBody, options Options) (*PostAuthSignup, error) {
+func (c *Client) Signup(body SignupBody, options Options) (*Signup, error) {
 	path := "/api/v1/auth/signup"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -254,10 +318,10 @@ func (c *Client) Signup(body PostAuthSignupBody, options Options) (*PostAuthSign
 		Token: c.token,
 		Body: body,
 	}
-	return Request[PostAuthSignup](data)
+	return Request[Signup](data)
 }
 
-func (c *Client) Signin(body PostAuthSigninBody, options Options) (*PostAuthSignin, error) {
+func (c *Client) Signin(body SigninBody, options Options) (*Signin, error) {
 	path := "/api/v1/auth/signin"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -270,10 +334,26 @@ func (c *Client) Signin(body PostAuthSigninBody, options Options) (*PostAuthSign
 		Token: c.token,
 		Body: body,
 	}
-	return Request[PostAuthSignin](data)
+	return Request[Signin](data)
 }
 
-func (c *Client) GetMe(options Options) (*GetAuthMe, error) {
+func (c *Client) ChangePassword(body ChangePasswordBody, options Options) (*any, error) {
+	path := "/api/v1/auth/password"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "PATCH",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) GetMe(options Options) (*GetMe, error) {
 	path := "/api/v1/auth/me"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -286,7 +366,7 @@ func (c *Client) GetMe(options Options) (*GetAuthMe, error) {
 		Token: c.token,
 		Body: nil,
 	}
-	return Request[GetAuthMe](data)
+	return Request[GetMe](data)
 }
 
 func (c *Client) GetPlaylists(options Options) (*GetPlaylists, error) {
@@ -305,7 +385,7 @@ func (c *Client) GetPlaylists(options Options) (*GetPlaylists, error) {
 	return Request[GetPlaylists](data)
 }
 
-func (c *Client) CreatePlaylist(body PostPlaylistBody, options Options) (*PostPlaylist, error) {
+func (c *Client) CreatePlaylist(body CreatePlaylistBody, options Options) (*CreatePlaylist, error) {
 	path := "/api/v1/playlists"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -318,10 +398,10 @@ func (c *Client) CreatePlaylist(body PostPlaylistBody, options Options) (*PostPl
 		Token: c.token,
 		Body: body,
 	}
-	return Request[PostPlaylist](data)
+	return Request[CreatePlaylist](data)
 }
 
-func (c *Client) CreatePlaylistFromFilter(body PostPlaylistFilterBody, options Options) (*PostPlaylist, error) {
+func (c *Client) CreatePlaylistFromFilter(body PostPlaylistFilterBody, options Options) (*CreatePlaylist, error) {
 	path := "/api/v1/playlists/filter"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -334,7 +414,7 @@ func (c *Client) CreatePlaylistFromFilter(body PostPlaylistFilterBody, options O
 		Token: c.token,
 		Body: body,
 	}
-	return Request[PostPlaylist](data)
+	return Request[CreatePlaylist](data)
 }
 
 func (c *Client) GetPlaylistById(id string, options Options) (*GetPlaylistById, error) {
@@ -353,7 +433,7 @@ func (c *Client) GetPlaylistById(id string, options Options) (*GetPlaylistById, 
 	return Request[GetPlaylistById](data)
 }
 
-func (c *Client) AddItemsToPlaylist(id string, body PostPlaylistItemsByIdBody, options Options) (*any, error) {
+func (c *Client) AddItemToPlaylist(id string, body AddItemToPlaylistBody, options Options) (*any, error) {
 	path := Sprintf("/api/v1/playlists/%v/items", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -369,7 +449,7 @@ func (c *Client) AddItemsToPlaylist(id string, body PostPlaylistItemsByIdBody, o
 	return Request[any](data)
 }
 
-func (c *Client) DeletePlaylistItems(id string, body DeletePlaylistItemsByIdBody, options Options) (*any, error) {
+func (c *Client) RemovePlaylistItem(id string, body RemovePlaylistItemBody, options Options) (*any, error) {
 	path := Sprintf("/api/v1/playlists/%v/items", id)
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -379,22 +459,6 @@ func (c *Client) DeletePlaylistItems(id string, body DeletePlaylistItemsByIdBody
 	data := RequestData{
 		Url: url,
 		Method: "DELETE",
-		Token: c.token,
-		Body: body,
-	}
-	return Request[any](data)
-}
-
-func (c *Client) MovePlaylistItem(id string, body PostPlaylistsItemMoveByIdBody, options Options) (*any, error) {
-	path := Sprintf("/api/v1/playlists/%v/items/move", id)
-	url, err := createUrl(c.addr, path, options.QueryParams)
-	if err != nil {
-		return nil, err
-	}
-
-	data := RequestData{
-		Url: url,
-		Method: "POST",
 		Token: c.token,
 		Body: body,
 	}
@@ -417,7 +481,7 @@ func (c *Client) GetSystemInfo(options Options) (*GetSystemInfo, error) {
 	return Request[GetSystemInfo](data)
 }
 
-func (c *Client) SystemExport(options Options) (*any, error) {
+func (c *Client) SystemExport(options Options) (*Export, error) {
 	path := "/api/v1/system/export"
 	url, err := createUrl(c.addr, path, options.QueryParams)
 	if err != nil {
@@ -430,23 +494,7 @@ func (c *Client) SystemExport(options Options) (*any, error) {
 		Token: c.token,
 		Body: nil,
 	}
-	return Request[any](data)
-}
-
-func (c *Client) SystemImport(options Options) (*any, error) {
-	path := "/api/v1/system/import"
-	url, err := createUrl(c.addr, path, options.QueryParams)
-	if err != nil {
-		return nil, err
-	}
-
-	data := RequestData{
-		Url: url,
-		Method: "POST",
-		Token: c.token,
-		Body: nil,
-	}
-	return Request[any](data)
+	return Request[Export](data)
 }
 
 func (c *Client) Process(options Options) (*any, error) {
@@ -463,4 +511,276 @@ func (c *Client) Process(options Options) (*any, error) {
 		Body: nil,
 	}
 	return Request[any](data)
+}
+
+func (c *Client) RefillSearch(options Options) (*any, error) {
+	path := "/api/v1/system/search"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) GetTaglists(options Options) (*GetTaglists, error) {
+	path := "/api/v1/taglists"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetTaglists](data)
+}
+
+func (c *Client) GetTaglistById(id string, options Options) (*GetTaglistById, error) {
+	path := Sprintf("/api/v1/taglists/%v", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetTaglistById](data)
+}
+
+func (c *Client) GetTaglistTracks(id string, options Options) (*GetTaglistTracks, error) {
+	path := Sprintf("/api/v1/taglists/%v/tracks", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetTaglistTracks](data)
+}
+
+func (c *Client) CreateTaglist(body CreateTaglistBody, options Options) (*CreateTaglist, error) {
+	path := "/api/v1/taglists"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[CreateTaglist](data)
+}
+
+func (c *Client) DeleteTaglist(id string, options Options) (*any, error) {
+	path := Sprintf("/api/v1/taglists/%v", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "DELETE",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) UpdateTaglist(id string, body UpdateTaglistBody, options Options) (*any, error) {
+	path := Sprintf("/api/v1/taglists/%v", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "PATCH",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) UpdateUserSettings(body UpdateUserSettingsBody, options Options) (*any, error) {
+	path := "/api/v1/user/settings"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "PATCH",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) AddToUserQuickPlaylist(body TrackId, options Options) (*any, error) {
+	path := "/api/v1/user/quickplaylist"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) RemoveItemFromUserQuickPlaylist(body TrackId, options Options) (*any, error) {
+	path := "/api/v1/user/quickplaylist"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "DELETE",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) GetUserQuickPlaylistItemIds(options Options) (*GetUserQuickPlaylistItemIds, error) {
+	path := "/api/v1/user/quickplaylist"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetUserQuickPlaylistItemIds](data)
+}
+
+func (c *Client) CreateApiToken(body CreateApiTokenBody, options Options) (*CreateApiToken, error) {
+	path := "/api/v1/user/apitoken"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: body,
+	}
+	return Request[CreateApiToken](data)
+}
+
+func (c *Client) GetAllApiTokens(options Options) (*GetAllApiTokens, error) {
+	path := "/api/v1/user/apitoken"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "GET",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[GetAllApiTokens](data)
+}
+
+func (c *Client) RemoveApiToken(id string, options Options) (*any, error) {
+	path := Sprintf("/api/v1/user/apitoken/%v", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "DELETE",
+		Token: c.token,
+		Body: nil,
+	}
+	return Request[any](data)
+}
+
+func (c *Client) ChangeArtistPicture(id string, body Reader, options Options) (*any, error) {
+	path := Sprintf("/api/v1/artists/%v/picture", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: nil,
+	}
+	return RequestForm[any](data, options.Boundary, body)
+}
+
+func (c *Client) ChangeAlbumCover(id string, body Reader, options Options) (*any, error) {
+	path := Sprintf("/api/v1/albums/%v/cover", id)
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: nil,
+	}
+	return RequestForm[any](data, options.Boundary, body)
+}
+
+func (c *Client) UploadTrack(body Reader, options Options) (*any, error) {
+	path := "/api/v1/tracks"
+	url, err := createUrl(c.addr, path, options.QueryParams)
+	if err != nil {
+		return nil, err
+	}
+
+	data := RequestData{
+		Url: url,
+		Method: "POST",
+		Token: c.token,
+		Body: body,
+	}
+	return RequestForm[any](data, options.Boundary, body)
 }

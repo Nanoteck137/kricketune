@@ -42,9 +42,9 @@ func (q *DwebbleQueue) LoadFilter(filter, sort string) error {
 
 	for _, t := range tracks.Tracks {
 		q.tracks = append(q.tracks, player.Track{
-			Name:   t.Name,
-			Artist: t.ArtistName,
-			Album:  t.AlbumName,
+			Name:   t.Name.Default,
+			Artist: t.ArtistName.Default,
+			Album:  t.AlbumName.Default,
 			Uri:    t.MobileMediaUrl,
 		})
 	}

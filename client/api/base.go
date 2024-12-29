@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 type Client struct {
@@ -26,6 +27,7 @@ func (c *Client) SetToken(token string) {
 
 type Options struct {
 	QueryParams map[string]string
+	Boundary    string
 }
 
 func createUrl(addr, path string, query map[string]string) (string, error) {
@@ -48,7 +50,8 @@ func createUrl(addr, path string, query map[string]string) (string, error) {
 type ApiError[E any] struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
-	Errors  E      `json:"errors,omitempty"`
+	Type    string `json:"type"`
+	Extra  E      `json:"extra,omitempty"`
 }
 
 func (err *ApiError[E]) Error() string {
@@ -56,9 +59,9 @@ func (err *ApiError[E]) Error() string {
 }
 
 type ApiResponse[D any, E any] struct {
-	Status string       `json:"status"`
-	Data   D            `json:"data,omitempty"`
-	Error  *ApiError[E] `json:"error,omitempty"`
+	Success bool         `json:"success"`
+	Data    D            `json:"data,omitempty"`
+	Error   *ApiError[E] `json:"error,omitempty"`
 }
 
 type RequestData struct {
@@ -67,6 +70,26 @@ type RequestData struct {
 
 	Token string
 	Body  any
+}
+
+func rawRequest(data *RequestData, contentType string, bodyReader io.Reader) (*http.Response, error) {
+	req, err := http.NewRequest(data.Method, data.Url, bodyReader)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.Token != "" {
+		req.Header.Add("Authorization", "Bearer "+data.Token)
+	}
+
+	req.Header.Set("Content-Type", contentType)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func Request[D any](data RequestData) (*D, error) {
@@ -83,16 +106,7 @@ func Request[D any](data RequestData) (*D, error) {
 		bodyReader = &buf
 	}
 
-	req, err := http.NewRequest(data.Method, data.Url, bodyReader)
-	if err != nil {
-		return nil, err
-	}
-
-	if data.Token != "" {
-		req.Header.Add("Authorization", "Bearer "+data.Token)
-	}
-
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := rawRequest(&data, "application/json", bodyReader)
 	if err != nil {
 		return nil, err
 	}
@@ -104,10 +118,38 @@ func Request[D any](data RequestData) (*D, error) {
 		return nil, err
 	}
 
-	if res.Status == "error" {
+	if !res.Success {
 		return nil, res.Error
 	}
-	
+
+	return &res.Data, nil
+}
+
+// NOTE(patrik): Copied from multipart.Writer.FormDataContentType
+func createFormContentType(b string) string {
+	if strings.ContainsAny(b, `()<>@,;:\"/[]?= `) {
+		b = `"` + b + `"`
+	}
+	return "multipart/form-data; boundary=" + b
+}
+
+func RequestForm[D any](data RequestData, boundary string, body Reader) (*D, error) {
+	ct := createFormContentType(boundary)
+	resp, err := rawRequest(&data, ct, body)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var res ApiResponse[D, any]
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		return nil, err
+	}
+
+	if !res.Success {
+		return nil, res.Error
+	}
 
 	return &res.Data, nil
 }
@@ -117,3 +159,7 @@ func Sprintf(format string, a ...any) string {
 	return fmt.Sprintf(format, a...)
 }
 
+// Copy of io.Reader interface
+type Reader interface {
+	Read(p []byte) (n int, err error)
+}
