@@ -34,6 +34,7 @@ func (q *DwebbleQueue) LoadFilter(filter, sort string) error {
 		QueryParams: map[string]string{
 			"filter": filter,
 			"sort":   sort,
+			"perPage": "500",
 		},
 	})
 	if err != nil {
