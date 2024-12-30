@@ -3,6 +3,7 @@ package apis
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/nanoteck137/kricketune/core"
 	"github.com/nanoteck137/pyrin"
@@ -149,6 +150,17 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			Path:   "/player/rewindTrack",
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				app.Player().RewindTrack()
+
+				return nil, nil
+			},
+		},
+
+		pyrin.ApiHandler{
+			Name:   "SeekForward",
+			Method: "POST",
+			Path:   "/player/seekForward",
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				app.Player().SeekForward(30 * time.Second)
 
 				return nil, nil
 			},

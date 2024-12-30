@@ -140,6 +140,13 @@
       "bodyType": ""
     },
     {
+      "name": "SeekForward",
+      "method": "POST",
+      "path": "/api/v1/player/seekForward",
+      "responseType": "",
+      "bodyType": ""
+    },
+    {
       "name": "ClearQueue",
       "method": "POST",
       "path": "/api/v1/player/clearQueue",

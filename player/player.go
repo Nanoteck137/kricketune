@@ -2,6 +2,7 @@ package player
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-gst/go-glib/glib"
 	"github.com/go-gst/go-gst/gst"
@@ -123,6 +124,13 @@ func (p *Player) PrevTrack() {
 	if ok {
 		p.PlayTrack(track)
 	}
+}
+
+func (p *Player) SeekForward(skip time.Duration) {
+	hasPosition, currentPosition := p.playbin.QueryPosition(gst.FormatTime)
+	fmt.Printf("hasPosition: %v\n", hasPosition)
+	fmt.Printf("currentPosition: %v\n", currentPosition)
+	// p.playbin.SeekTime(0, gst.SeekFlagFlush)
 }
 
 func (p *Player) RewindTrack() {
