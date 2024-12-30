@@ -7,6 +7,7 @@ declare global {
   namespace App {
     // interface Error {}
     interface Locals {
+      apiAddress: string;
       apiClient: ApiClient;
     }
     // interface PageData {}
