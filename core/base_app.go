@@ -320,7 +320,7 @@ func (app *BaseApp) Bootstrap() error {
 		return fmt.Errorf("Failed to create audio player: %w", err)
 	}
 
-	app.queue.client.SetApiToken("tmmj86843slucd00gslhz4rancyvb7jl")
+	app.queue.client.SetApiToken(app.config.ApiToken)
 
 	user, err := app.queue.client.GetMe(api.Options{})
 	if err == nil {

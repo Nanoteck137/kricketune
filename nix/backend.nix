@@ -7,6 +7,7 @@ with lib; let
     listen_addr = "${cfg.host}:${toString cfg.port}"
     data_dir = "/var/lib/kricketune"
     dwebble_address = "${cfg.dwebbleAddress}"
+    api_token = "${cfg.apiToken}"
     audio_output = "${cfg.audioOutput}"
 
     ${cfg.extraConfig}
@@ -31,6 +32,12 @@ in
     dwebbleAddress = mkOption {
       type = types.str;
       description = "address of the dwebble server";
+    };
+
+    apiToken = mkOption {
+      type = types.str;
+      default = "";
+      description = "api token";
     };
 
     audioOutput = mkOption {

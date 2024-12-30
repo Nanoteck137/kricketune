@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/nanoteck137/kricketune"
@@ -10,18 +9,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-type FilterSet struct {
-	Name   string
-	Filter string
-	Sort   string
-}
-
 type Config struct {
 	ListenAddr     string      `mapstructure:"listen_addr"`
 	DataDir        string      `mapstructure:"data_dir"`
 	DwebbleAddress string      `mapstructure:"dwebble_address"`
+	ApiToken       string      `mapstructure:"api_token"`
 	AudioOutput    string      `mapstructure:"audio_output"`
-	FilterSets     []FilterSet `mapstructure:"filter_sets"`
 }
 
 func (c *Config) WorkDir() types.WorkDir {
@@ -32,6 +25,7 @@ func setDefaults() {
 	viper.SetDefault("listen_addr", ":3000")
 	viper.BindEnv("data_dir")
 	viper.BindEnv("dwebble_address")
+	viper.BindEnv("api_token")
 	viper.SetDefault("audio_output", "autoaudiosink")
 }
 
@@ -49,11 +43,8 @@ func validateConfig(config *Config) {
 	validate(config.ListenAddr == "", "listen_addr needs to be set")
 	validate(config.DataDir == "", "data_dir needs to be set")
 	validate(config.DwebbleAddress == "", "dwebble_address needs to be set")
+	// validate(config.ApiToken == "", "api_token needs to be set")
 	validate(config.AudioOutput == "", "audio_output needs to be set")
-
-	for i, set := range config.FilterSets {
-		validate(set.Name == "", fmt.Sprintf("filter_sets[%v] name needs to be set", i))
-	}
 
 	if hasError {
 		log.Fatal("Config not valid")

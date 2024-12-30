@@ -1,9 +1,5 @@
 listen_addr = ":3000"
 data_dir = "/Some/Dir"
 dwebble_address = "http://<ADDRESS>"
+api_token = "<API-TOKEN>"
 # audio_output = "autoaudiosink"
-
-[[filter_sets]]
-name = "SOME NAME"
-filter = "FILTER"
-sort = "SORTING METHOD"
