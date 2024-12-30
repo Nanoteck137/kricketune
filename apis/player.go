@@ -1,8 +1,7 @@
 package apis
 
 import (
-	"net/http"
-	"strconv"
+	"sort"
 	"time"
 
 	"github.com/nanoteck137/kricketune/core"
@@ -34,6 +33,15 @@ type Status struct {
 	Duration int64 `json:"duration"`
 }
 
+type List struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type GetLists struct {
+	Lists []List `json:"lists"`
+}
+
 type SeekBody struct {
 	Skip int `json:"skip"`
 }
@@ -41,50 +49,6 @@ type SeekBody struct {
 func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 	// TODO(patrik): Use http.Method*
 	group.Register(
-		pyrin.ApiHandler{
-			Name:         "GetSets",
-			Method:       http.MethodGet,
-			Path:         "/player/sets",
-			ResponseType: Sets{},
-			HandlerFunc: func(c pyrin.Context) (any, error) {
-
-				res := Sets{
-					Sets: make([]Set, len(app.Config().FilterSets)),
-				}
-
-				for i, set := range app.Config().FilterSets {
-					res.Sets[i] = Set{
-						Name:  set.Name,
-						Index: i,
-					}
-				}
-
-				return res, nil
-			},
-		},
-
-		pyrin.ApiHandler{
-			Name:   "ChangeSet",
-			Method: http.MethodPost,
-			Path:   "/player/sets/:index",
-			HandlerFunc: func(c pyrin.Context) (any, error) {
-				indexStr := c.Param("index")
-				index, err := strconv.Atoi(indexStr)
-				if err != nil {
-					return nil, err
-				}
-
-				// TODO(patrik): Add index checks
-				set := app.Config().FilterSets[index]
-
-				app.Queue().Clear()
-				app.Queue().LoadFilter(set.Filter, set.Sort)
-				app.Player().Start()
-
-				return nil, nil
-			},
-		},
-
 		pyrin.ApiHandler{
 			Name:         "GetStatus",
 			Method:       "GET",
@@ -108,6 +72,33 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 					Position:    position / int64(time.Millisecond),
 					Duration:    duration / int64(time.Millisecond),
 				}, nil
+			},
+		},
+
+		pyrin.ApiHandler{
+			Name:         "GetLists",
+			Method:       "GET",
+			Path:         "/player/lists",
+			ResponseType: GetLists{},
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				queue := app.Queue()
+
+				res := GetLists{
+					Lists: make([]List, 0, len(queue.Lists)),
+				}
+
+				for id, list := range queue.Lists {
+					res.Lists = append(res.Lists, List{
+						Id:   id,
+						Name: list.GetName(),
+					})
+				}
+
+				sort.Slice(res.Lists, func(i, j int) bool {
+					return res.Lists[i].Name < res.Lists[j].Name
+				})
+
+				return res, nil
 			},
 		},
 

@@ -9,33 +9,6 @@
   ],
   "types": [
     {
-      "name": "Set",
-      "extend": "",
-      "fields": [
-        {
-          "name": "name",
-          "type": "string",
-          "omit": false
-        },
-        {
-          "name": "index",
-          "type": "int",
-          "omit": false
-        }
-      ]
-    },
-    {
-      "name": "Sets",
-      "extend": "",
-      "fields": [
-        {
-          "name": "sets",
-          "type": "[]Set",
-          "omit": false
-        }
-      ]
-    },
-    {
       "name": "Status",
       "extend": "",
       "fields": [
@@ -92,6 +65,33 @@
       ]
     },
     {
+      "name": "List",
+      "extend": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "omit": false
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "omit": false
+        }
+      ]
+    },
+    {
+      "name": "GetLists",
+      "extend": "",
+      "fields": [
+        {
+          "name": "lists",
+          "type": "[]List",
+          "omit": false
+        }
+      ]
+    },
+    {
       "name": "SeekBody",
       "extend": "",
       "fields": [
@@ -105,24 +105,17 @@
   ],
   "apiEndpoints": [
     {
-      "name": "GetSets",
-      "method": "GET",
-      "path": "/api/v1/player/sets",
-      "responseType": "Sets",
-      "bodyType": ""
-    },
-    {
-      "name": "ChangeSet",
-      "method": "POST",
-      "path": "/api/v1/player/sets/:index",
-      "responseType": "",
-      "bodyType": ""
-    },
-    {
       "name": "GetStatus",
       "method": "GET",
       "path": "/api/v1/player/status",
       "responseType": "Status",
+      "bodyType": ""
+    },
+    {
+      "name": "GetLists",
+      "method": "GET",
+      "path": "/api/v1/player/lists",
+      "responseType": "GetLists",
       "bodyType": ""
     },
     {

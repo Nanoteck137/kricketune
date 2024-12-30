@@ -1,10 +1,11 @@
 package core
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"sync"
 
-	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune/client/api"
 	"github.com/nanoteck137/kricketune/config"
 	"github.com/nanoteck137/kricketune/player"
@@ -13,8 +14,31 @@ import (
 
 var _ player.Queue = (*DwebbleQueue)(nil)
 
+type List interface {
+	GetName() string
+	LoadTracks() []player.Track
+}
+
+var _ List = (*Playlist)(nil)
+
+type Playlist struct {
+	Id   string
+	Name string
+}
+
+func (p Playlist) GetName() string {
+	return p.Name
+}
+
+func (p Playlist) LoadTracks() []player.Track {
+	panic("unimplemented")
+}
+
 type DwebbleQueue struct {
 	client *api.Client
+
+	// TODO(patrik): Make private?
+	Lists map[string]List
 
 	mux    sync.RWMutex
 	index  int
@@ -27,10 +51,42 @@ func NewDwebbleQueue(client *api.Client) *DwebbleQueue {
 	}
 }
 
+func GenerateCryptoID() string {
+    bytes := make([]byte, 16)
+    if _, err := rand.Read(bytes); err != nil {
+        panic(err)
+    }
+    return hex.EncodeToString(bytes)
+}
+
 type QueueStatus struct {
 	Index        int
 	NumTracks    int
 	CurrentTrack player.Track
+}
+
+func (q *DwebbleQueue) FetchLists() error {
+	// q.mux.Lock()
+	// defer q.mux.Unlock()
+	clear(q.Lists)
+
+	playlists, err := q.client.GetPlaylists(api.Options{})
+	if err != nil {
+		return err
+	}
+
+	for _, playlist := range playlists.Playlists {
+		id := GenerateCryptoID()
+
+		name := fmt.Sprintf("Playlist - %s", playlist.Name)
+
+		q.Lists[id] = Playlist{
+			Id:   playlist.Id,
+			Name: name,
+		}
+	}
+
+	return nil
 }
 
 func (q *DwebbleQueue) GetStatus() QueueStatus {
@@ -142,7 +198,14 @@ var _ App = (*BaseApp)(nil)
 type BaseApp struct {
 	config *config.Config
 	player *player.Player
+
+	client *api.Client
+	user   *User
 	queue  *DwebbleQueue
+}
+
+func (app *BaseApp) User() *User {
+	return nil
 }
 
 func (app *BaseApp) Queue() *DwebbleQueue {
@@ -172,11 +235,13 @@ func (app *BaseApp) Bootstrap() error {
 	app.queue.client.SetApiToken("tmmj86843slucd00gslhz4rancyvb7jl")
 
 	user, err := app.queue.client.GetMe(api.Options{})
-	if err != nil {
-		return err
+	if err == nil {
+		app.user = &User{
+			Username:        user.Username,
+			DisplayName:     user.DisplayName,
+			QuickPlaylistId: user.QuickPlaylist,
+		}
 	}
-
-	pretty.Println(user)
 
 	// NOTE(patrik): Setting default values
 	app.player.SetVolume(1.0)
@@ -184,18 +249,9 @@ func (app *BaseApp) Bootstrap() error {
 
 	app.player.SetQueue(app.queue)
 
-	err = app.queue.LoadPlaylist(*user.QuickPlaylist)
-	if err != nil {
-		return err
-	}
-
-	// if len(app.Config().FilterSets) > 0 {
-	// 	set := app.Config().FilterSets[0]
-	//
-	// 	err := app.queue.LoadFilter(set.Filter, set.Sort)
-	// 	if err != nil {
-	// 		return err
-	// 	}
+	// err = app.queue.LoadPlaylist(*user.QuickPlaylist)
+	// if err != nil {
+	// 	return err
 	// }
 
 	return nil
