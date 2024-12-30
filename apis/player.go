@@ -31,6 +31,10 @@ type Status struct {
 	NumTracks  int `json:"numTracks"`
 }
 
+type SeekBody struct {
+	Skip int `json:"skip"`
+}
+
 func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 	// TODO(patrik): Use http.Method*
 	group.Register(
@@ -156,11 +160,17 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 		},
 
 		pyrin.ApiHandler{
-			Name:   "SeekForward",
+			Name:   "Seek",
 			Method: "POST",
-			Path:   "/player/seekForward",
+			Path:   "/player/seek",
+			BodyType: SeekBody{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
-				app.Player().SeekForward(30 * time.Second)
+				body, err := pyrin.Body[SeekBody](c)
+				if err != nil {
+					return nil, err
+				}
+
+				app.Player().Seek(time.Duration(body.Skip) * time.Second)
 
 				return nil, nil
 			},

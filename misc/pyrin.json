@@ -80,6 +80,17 @@
           "omit": false
         }
       ]
+    },
+    {
+      "name": "SeekBody",
+      "extend": "",
+      "fields": [
+        {
+          "name": "skip",
+          "type": "int",
+          "omit": false
+        }
+      ]
     }
   ],
   "apiEndpoints": [
@@ -140,11 +151,11 @@
       "bodyType": ""
     },
     {
-      "name": "SeekForward",
+      "name": "Seek",
       "method": "POST",
-      "path": "/api/v1/player/seekForward",
+      "path": "/api/v1/player/seek",
       "responseType": "",
-      "bodyType": ""
+      "bodyType": "SeekBody"
     },
     {
       "name": "ClearQueue",

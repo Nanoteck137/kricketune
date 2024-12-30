@@ -40,8 +40,8 @@ export class ApiClient extends BaseApiClient {
     return this.request("/api/v1/player/rewindTrack", "POST", z.undefined(), z.any(), undefined, options)
   }
   
-  seekForward(options?: ExtraOptions) {
-    return this.request("/api/v1/player/seekForward", "POST", z.undefined(), z.any(), undefined, options)
+  seek(body: api.SeekBody, options?: ExtraOptions) {
+    return this.request("/api/v1/player/seek", "POST", z.undefined(), z.any(), body, options)
   }
   
   clearQueue(options?: ExtraOptions) {

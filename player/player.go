@@ -126,11 +126,15 @@ func (p *Player) PrevTrack() {
 	}
 }
 
-func (p *Player) SeekForward(skip time.Duration) {
+func (p *Player) Seek(skip time.Duration) {
 	hasPosition, currentPosition := p.playbin.QueryPosition(gst.FormatTime)
-	fmt.Printf("hasPosition: %v\n", hasPosition)
-	fmt.Printf("currentPosition: %v\n", currentPosition)
-	// p.playbin.SeekTime(0, gst.SeekFlagFlush)
+	if hasPosition {
+		seekTime := time.Duration(currentPosition + skip.Nanoseconds())
+		if seekTime <= 0 {
+			seekTime = 0
+		}
+		p.playbin.SeekTime(seekTime, gst.SeekFlagFlush)
+	}
 }
 
 func (p *Player) RewindTrack() {

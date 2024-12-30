@@ -24,3 +24,8 @@ export const Status = z.object({
 });
 export type Status = z.infer<typeof Status>;
 
+export const SeekBody = z.object({
+  skip: z.number(),
+});
+export type SeekBody = z.infer<typeof SeekBody>;
+
