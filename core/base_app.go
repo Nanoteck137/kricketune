@@ -52,6 +52,44 @@ func (p Playlist) LoadTracks() ([]player.Track, error) {
 	return tracks, nil
 }
 
+var _ List = (*Taglist)(nil)
+
+type Taglist struct {
+	client *api.Client
+
+	Id   string
+	Name string
+}
+
+func (p Taglist) GetName() string {
+	return p.Name
+}
+
+func (p Taglist) LoadTracks() ([]player.Track, error) {
+	items, err := p.client.GetTaglistTracks(p.Id, api.Options{
+		QueryParams: map[string]string{
+			"perPage": "1000",
+			"sort":    "random",
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	tracks := make([]player.Track, len(items.Tracks))
+
+	for i, t := range items.Tracks {
+		tracks[i] = player.Track{
+			Name:   t.Name.Default,
+			Artist: t.ArtistName.Default,
+			Album:  t.AlbumName.Default,
+			Uri:    t.MobileMediaUrl,
+		}
+	}
+
+	return tracks, nil
+}
+
 type DwebbleQueue struct {
 	client *api.Client
 
@@ -116,6 +154,22 @@ func (q *DwebbleQueue) FetchLists() error {
 		q.Lists[id] = Playlist{
 			client: q.client,
 			Id:     playlist.Id,
+			Name:   name,
+		}
+	}
+
+	taglists, err := q.client.GetTaglists(api.Options{})
+	if err != nil {
+		return err
+	}
+
+	for _, taglist := range taglists.Taglists {
+		id := GenerateCryptoID()
+		name := fmt.Sprintf("Taglist - %s", taglist.Name)
+
+		q.Lists[id] = Taglist{
+			client: q.client,
+			Id:     taglist.Id,
 			Name:   name,
 		}
 	}
