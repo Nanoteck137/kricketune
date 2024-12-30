@@ -54,6 +54,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return res, nil
 			},
 		},
+
 		pyrin.ApiHandler{
 			Name:   "ChangeSet",
 			Method: http.MethodPost,
@@ -75,13 +76,15 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return nil, nil
 			},
 		},
+
 		pyrin.ApiHandler{
 			Name:     "GetStatus",
 			Method:   "GET",
 			Path:     "/player/status",
 			ResponseType: Status{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
-				currentTrack, _ := app.Queue().CurrentTrack()
+				queueStatus := app.Queue().GetStatus()
+				currentTrack := queueStatus.CurrentTrack
 
 				res := Status{
 					TrackName:   currentTrack.Name,
@@ -90,13 +93,14 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 					IsPlaying:   app.Player().IsPlaying(),
 					Volume:      app.Player().GetVolume(),
 					Mute:        app.Player().GetMute(),
-					// QueueIndex:  app.Player().CurrentQueueIndex(),
-					// NumTracks:   app.Player().NumTracks(),
+					QueueIndex:  queueStatus.Index,
+					NumTracks:   queueStatus.NumTracks,
 				}
 
 				return res, nil
 			},
 		},
+
 		pyrin.ApiHandler{
 			Name:   "Play",
 			Method: "POST",
@@ -106,6 +110,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return nil, nil
 			},
 		},
+
 		pyrin.ApiHandler{
 			Name:   "Pause",
 			Method: "POST",
@@ -115,6 +120,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return nil, nil
 			},
 		},
+
 		pyrin.ApiHandler{
 			Name:   "Next",
 			Method: "POST",
@@ -125,6 +131,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return nil, nil
 			},
 		},
+
 		pyrin.ApiHandler{
 			Name:   "Prev",
 			Method: "POST",
@@ -135,6 +142,18 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				return nil, nil
 			},
 		},
+
+		pyrin.ApiHandler{
+			Name:   "RewindTrack",
+			Method: "POST",
+			Path:   "/player/rewindTrack",
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				app.Player().RewindTrack()
+
+				return nil, nil
+			},
+		},
+
 		pyrin.ApiHandler{
 			Name:   "ClearQueue",
 			Method: "POST",

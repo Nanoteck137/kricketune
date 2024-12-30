@@ -125,6 +125,10 @@ func (p *Player) PrevTrack() {
 	}
 }
 
+func (p *Player) RewindTrack() {
+	p.playbin.SeekTime(0, gst.SeekFlagFlush)
+}
+
 func Launch(player *Player) error {
 	mainLoop := glib.NewMainLoop(glib.MainContextDefault(), false)
 

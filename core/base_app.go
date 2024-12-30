@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune/client/api"
 	"github.com/nanoteck137/kricketune/config"
 	"github.com/nanoteck137/kricketune/player"
@@ -26,14 +27,37 @@ func NewDwebbleQueue(client *api.Client) *DwebbleQueue {
 	}
 }
 
+type QueueStatus struct {
+	Index        int
+	NumTracks    int
+	CurrentTrack player.Track
+}
+
+func (q *DwebbleQueue) GetStatus() QueueStatus {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
+	var currentTrack player.Track
+
+	if len(q.tracks) > 0 {
+		currentTrack = q.tracks[q.index]
+	}
+
+	return QueueStatus{
+		Index:        q.index,
+		NumTracks:    len(q.tracks),
+		CurrentTrack: currentTrack,
+	}
+}
+
 func (q *DwebbleQueue) LoadFilter(filter, sort string) error {
 	q.mux.Lock()
 	defer q.mux.Unlock()
 
 	tracks, err := q.client.GetTracks(api.Options{
 		QueryParams: map[string]string{
-			"filter": filter,
-			"sort":   sort,
+			"filter":  filter,
+			"sort":    sort,
 			"perPage": "500",
 		},
 	})
@@ -42,6 +66,27 @@ func (q *DwebbleQueue) LoadFilter(filter, sort string) error {
 	}
 
 	for _, t := range tracks.Tracks {
+		q.tracks = append(q.tracks, player.Track{
+			Name:   t.Name.Default,
+			Artist: t.ArtistName.Default,
+			Album:  t.AlbumName.Default,
+			Uri:    t.MobileMediaUrl,
+		})
+	}
+
+	return nil
+}
+
+func (q *DwebbleQueue) LoadPlaylist(playlistId string) error {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
+	playlist, err := q.client.GetPlaylistById(playlistId, api.Options{})
+	if err != nil {
+		return err
+	}
+
+	for _, t := range playlist.Items {
 		q.tracks = append(q.tracks, player.Track{
 			Name:   t.Name.Default,
 			Artist: t.ArtistName.Default,
@@ -124,20 +169,34 @@ func (app *BaseApp) Bootstrap() error {
 		return fmt.Errorf("Failed to create audio player: %w", err)
 	}
 
+	app.queue.client.SetApiToken("tmmj86843slucd00gslhz4rancyvb7jl")
+
+	user, err := app.queue.client.GetMe(api.Options{})
+	if err != nil {
+		return err
+	}
+
+	pretty.Println(user)
+
 	// NOTE(patrik): Setting default values
 	app.player.SetVolume(1.0)
 	app.player.SetMute(false)
 
 	app.player.SetQueue(app.queue)
 
-	if len(app.Config().FilterSets) > 0 {
-		set := app.Config().FilterSets[0]
-
-		err := app.queue.LoadFilter(set.Filter, set.Sort)
-		if err != nil {
-			return err
-		}
+	err = app.queue.LoadPlaylist(*user.QuickPlaylist)
+	if err != nil {
+		return err
 	}
+
+	// if len(app.Config().FilterSets) > 0 {
+	// 	set := app.Config().FilterSets[0]
+	//
+	// 	err := app.queue.LoadFilter(set.Filter, set.Sort)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }
