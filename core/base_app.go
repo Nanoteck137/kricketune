@@ -16,12 +16,14 @@ var _ player.Queue = (*DwebbleQueue)(nil)
 
 type List interface {
 	GetName() string
-	LoadTracks() []player.Track
+	LoadTracks() ([]player.Track, error)
 }
 
 var _ List = (*Playlist)(nil)
 
 type Playlist struct {
+	client *api.Client
+
 	Id   string
 	Name string
 }
@@ -30,8 +32,24 @@ func (p Playlist) GetName() string {
 	return p.Name
 }
 
-func (p Playlist) LoadTracks() []player.Track {
-	panic("unimplemented")
+func (p Playlist) LoadTracks() ([]player.Track, error) {
+	playlist, err := p.client.GetPlaylistById(p.Id, api.Options{})
+	if err != nil {
+		return nil, err
+	}
+
+	tracks := make([]player.Track, len(playlist.Items))
+
+	for i, t := range playlist.Items {
+		tracks[i] = player.Track{
+			Name:   t.Name.Default,
+			Artist: t.ArtistName.Default,
+			Album:  t.AlbumName.Default,
+			Uri:    t.MobileMediaUrl,
+		}
+	}
+
+	return tracks, nil
 }
 
 type DwebbleQueue struct {
@@ -48,21 +66,37 @@ type DwebbleQueue struct {
 func NewDwebbleQueue(client *api.Client) *DwebbleQueue {
 	return &DwebbleQueue{
 		client: client,
+		Lists:  map[string]List{},
 	}
 }
 
 func GenerateCryptoID() string {
-    bytes := make([]byte, 16)
-    if _, err := rand.Read(bytes); err != nil {
-        panic(err)
-    }
-    return hex.EncodeToString(bytes)
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
 }
 
 type QueueStatus struct {
 	Index        int
 	NumTracks    int
 	CurrentTrack player.Track
+}
+
+func (q *DwebbleQueue) LoadList(list List) error {
+	tracks, err := list.LoadTracks()
+	if err != nil {
+		return err
+	}
+
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
+	q.index = 0
+	q.tracks = tracks
+
+	return nil
 }
 
 func (q *DwebbleQueue) FetchLists() error {
@@ -77,12 +111,12 @@ func (q *DwebbleQueue) FetchLists() error {
 
 	for _, playlist := range playlists.Playlists {
 		id := GenerateCryptoID()
-
 		name := fmt.Sprintf("Playlist - %s", playlist.Name)
 
 		q.Lists[id] = Playlist{
-			Id:   playlist.Id,
-			Name: name,
+			client: q.client,
+			Id:     playlist.Id,
+			Name:   name,
 		}
 	}
 
@@ -241,6 +275,8 @@ func (app *BaseApp) Bootstrap() error {
 			DisplayName:     user.DisplayName,
 			QuickPlaylistId: user.QuickPlaylist,
 		}
+
+		app.queue.FetchLists()
 	}
 
 	// NOTE(patrik): Setting default values

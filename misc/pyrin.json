@@ -119,6 +119,13 @@
       "bodyType": ""
     },
     {
+      "name": "LoadList",
+      "method": "POST",
+      "path": "/api/v1/player/lists/:id",
+      "responseType": "",
+      "bodyType": ""
+    },
+    {
       "name": "Play",
       "method": "POST",
       "path": "/api/v1/player/play",

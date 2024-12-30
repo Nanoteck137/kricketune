@@ -1,9 +1,12 @@
 package apis
 
 import (
+	"errors"
+	"net/http"
 	"sort"
 	"time"
 
+	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune/core"
 	"github.com/nanoteck137/pyrin"
 )
@@ -99,6 +102,34 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				})
 
 				return res, nil
+			},
+		},
+
+		pyrin.ApiHandler{
+			Name:         "LoadList",
+			Method:       http.MethodPost,
+			Path:         "/player/lists/:id",
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				id := c.Param("id")
+
+				queue := app.Queue()
+
+				list, exists := queue.Lists[id]
+				if !exists {
+					// TODO(patrik): Error
+					return nil, errors.New("No list with id")
+				}
+
+				err := queue.LoadList(list)
+				if err != nil {
+					return nil, err
+				}
+
+				pretty.Println(queue)
+
+				app.Player().Start()
+
+				return nil, nil
 			},
 		},
 

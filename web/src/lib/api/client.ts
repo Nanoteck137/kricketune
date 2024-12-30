@@ -16,6 +16,10 @@ export class ApiClient extends BaseApiClient {
     return this.request("/api/v1/player/lists", "GET", api.GetLists, z.any(), undefined, options)
   }
   
+  loadList(id: string, options?: ExtraOptions) {
+    return this.request(`/api/v1/player/lists/${id}`, "POST", z.undefined(), z.any(), undefined, options)
+  }
+  
   play(options?: ExtraOptions) {
     return this.request("/api/v1/player/play", "POST", z.undefined(), z.any(), undefined, options)
   }
