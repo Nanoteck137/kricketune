@@ -78,6 +78,16 @@
           "name": "numTracks",
           "type": "int",
           "omit": false
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "omit": false
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "omit": false
         }
       ]
     },

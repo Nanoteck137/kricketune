@@ -21,6 +21,8 @@ export const Status = z.object({
   mute: z.boolean(),
   queueIndex: z.number(),
   numTracks: z.number(),
+  position: z.number(),
+  duration: z.number(),
 });
 export type Status = z.infer<typeof Status>;
 

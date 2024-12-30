@@ -126,6 +126,13 @@ func (p *Player) PrevTrack() {
 	}
 }
 
+func (p *Player) GetPosition() (int64, int64) {
+	_, position := p.playbin.QueryPosition(gst.FormatTime)
+	_, duration := p.playbin.QueryDuration(gst.FormatTime)
+
+	return position, duration
+}
+
 func (p *Player) Seek(skip time.Duration) {
 	hasPosition, currentPosition := p.playbin.QueryPosition(gst.FormatTime)
 	if hasPosition {

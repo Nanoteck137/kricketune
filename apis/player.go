@@ -29,6 +29,9 @@ type Status struct {
 
 	QueueIndex int `json:"queueIndex"`
 	NumTracks  int `json:"numTracks"`
+
+	Position int64 `json:"position"`
+	Duration int64 `json:"duration"`
 }
 
 type SeekBody struct {
@@ -83,15 +86,17 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 		},
 
 		pyrin.ApiHandler{
-			Name:     "GetStatus",
-			Method:   "GET",
-			Path:     "/player/status",
+			Name:         "GetStatus",
+			Method:       "GET",
+			Path:         "/player/status",
 			ResponseType: Status{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				queueStatus := app.Queue().GetStatus()
 				currentTrack := queueStatus.CurrentTrack
 
-				res := Status{
+				position, duration := app.Player().GetPosition()
+
+				return Status{
 					TrackName:   currentTrack.Name,
 					TrackArtist: currentTrack.Artist,
 					TrackAlbum:  currentTrack.Album,
@@ -100,9 +105,9 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 					Mute:        app.Player().GetMute(),
 					QueueIndex:  queueStatus.Index,
 					NumTracks:   queueStatus.NumTracks,
-				}
-
-				return res, nil
+					Position:    position / int64(time.Millisecond),
+					Duration:    duration / int64(time.Millisecond),
+				}, nil
 			},
 		},
 
@@ -160,9 +165,9 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 		},
 
 		pyrin.ApiHandler{
-			Name:   "Seek",
-			Method: "POST",
-			Path:   "/player/seek",
+			Name:     "Seek",
+			Method:   "POST",
+			Path:     "/player/seek",
 			BodyType: SeekBody{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				body, err := pyrin.Body[SeekBody](c)
