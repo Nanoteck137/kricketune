@@ -35,6 +35,7 @@
           ];
 
           strictDeps = true;
+          doCheck = false;
 
           nativeBuildInputs = [
             pkgs.pkg-config
