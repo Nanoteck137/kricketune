@@ -1,10 +1,11 @@
 package core
 
 import (
-	"crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"sync"
+	"math/rand"
+	cryptorand "crypto/rand"
 
 	"github.com/nanoteck137/kricketune/client/api"
 	"github.com/nanoteck137/kricketune/config"
@@ -48,6 +49,10 @@ func (p Playlist) LoadTracks() ([]player.Track, error) {
 			Uri:    t.MobileMediaUrl,
 		}
 	}
+
+	rand.Shuffle(len(tracks), func(i, j int) {
+		tracks[i], tracks[j] = tracks[j], tracks[i]
+	})
 
 	return tracks, nil
 }
@@ -110,7 +115,7 @@ func NewDwebbleQueue(client *api.Client) *DwebbleQueue {
 
 func GenerateCryptoID() string {
 	bytes := make([]byte, 16)
-	if _, err := rand.Read(bytes); err != nil {
+	if _, err := cryptorand.Read(bytes); err != nil {
 		panic(err)
 	}
 	return hex.EncodeToString(bytes)
