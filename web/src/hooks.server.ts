@@ -12,6 +12,8 @@ export const handle: Handle = async ({ event, resolve }) => {
     addr = url.origin;
   }
 
+  event.locals.apiAddress = addr;
+
   const client = new ApiClient(addr);
   event.locals.apiClient = client;
 
