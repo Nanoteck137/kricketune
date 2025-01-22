@@ -53,7 +53,7 @@
             pkgs.openssl
           ];
 
-          vendorHash = "sha256-fHiF5l4nJBjvkLzoj3CAFwniiPoylKmpL5QioENbZaU=";
+          vendorHash = "sha256-mGoLemgrMMXHdDYZdNEVwOFZ4ML6C9pUDuHUp5eAyUE=";
         };
 
         frontend = pkgs.buildNpmPackage {
