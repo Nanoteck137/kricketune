@@ -4,6 +4,7 @@ github.com/MadAppGang/httplog/echolog v1.3.0 h1:pR4CxabPNpuQTfjKUcdO7s5+DAW4DeuV
 github.com/MadAppGang/httplog/echolog v1.3.0/go.mod h1:49fdIJpFeyO+l9qhtA/fyGzVENjvi7j2y+Sji4tHdqI=
 github.com/TylerBrock/colorjson v0.0.0-20200706003622-8a50f05110d2 h1:ZBbLwSJqkHBuFDA6DUhhse0IGJ7T5bemHyNILUjvOq4=
 github.com/TylerBrock/colorjson v0.0.0-20200706003622-8a50f05110d2/go.mod h1:VSw57q4QFiWDbRnjdX8Cb3Ow0SFncRw+bA/ofY6Q83w=
+github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 h1:zV3ejI06GQ59hwDQAvmK1qxOQGB3WuVTRoY0okPTAv0=
 github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496/go.mod h1:oGkLhpf+kjZl6xBf758TQhh5XrAeiJv/7FRz/2spLIg=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
@@ -59,10 +60,8 @@ github.com/mattn/go-pointer v0.0.1 h1:n+XhsuGeVO6MEAp7xyEukFINEa+Quek5psIR/ylA6o
 github.com/mattn/go-pointer v0.0.1/go.mod h1:2zXcozF6qYGgmsG+SeTZz3oAbFLdD3OWqnUbNvJZAlc=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
-github.com/nanoteck137/pyrin v0.8.8 h1:rqocrZleU397XkX1FVysE5OUxANZe1RO4DNxlKhlHmA=
-github.com/nanoteck137/pyrin v0.8.8/go.mod h1:d+ZLxzY3pnEkm4y44bHLL6qS/fVUm8xixk5zqHy2OvY=
-github.com/nanoteck137/pyrin v0.14.2 h1:1/CdH3SyHIw/fNf5xHXuHUcGS2jNZ5/9OtH9eF/mz/M=
-github.com/nanoteck137/pyrin v0.14.2/go.mod h1:Gv1WtAFNgVdahUC0anFVEv1VqbtCeaSAz+tkkTHBfcU=
+github.com/nanoteck137/pyrin v0.15.2 h1:bPnMp4HjnJ1WQoDZnGXIjmukjpeI864cNt4ptEhGJcI=
+github.com/nanoteck137/pyrin v0.15.2/go.mod h1:Gv1WtAFNgVdahUC0anFVEv1VqbtCeaSAz+tkkTHBfcU=
 github.com/nanoteck137/validate v0.0.0-20241129211421-90ceb11de343 h1:EjWdC/+BXfC4YTKxdslWV8rFZXlZ48VAKpDTQs4Lo2U=
 github.com/nanoteck137/validate v0.0.0-20241129211421-90ceb11de343/go.mod h1:+21LcVRcjVhpx5vU3qJZpsJwV4NzAk2MH87WMvhG/sk=
 github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=

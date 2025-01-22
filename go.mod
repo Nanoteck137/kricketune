@@ -9,7 +9,7 @@ require (
 	github.com/go-gst/go-gst v1.4.0
 	github.com/golang-cz/devslog v0.0.8
 	github.com/kr/pretty v0.3.1
-	github.com/nanoteck137/pyrin v0.14.2
+	github.com/nanoteck137/pyrin v0.15.2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 )

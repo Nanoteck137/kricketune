@@ -34,19 +34,19 @@ func (p Playlist) GetName() string {
 }
 
 func (p Playlist) LoadTracks() ([]player.Track, error) {
-	playlist, err := p.client.GetPlaylistById(p.Id, api.Options{})
+	items, err := p.client.GetMediaFromPlaylist(p.Id, api.GetMediaFromPlaylistBody{}, api.Options{})
 	if err != nil {
 		return nil, err
 	}
 
-	tracks := make([]player.Track, len(playlist.Items))
+	tracks := make([]player.Track, len(items.Items))
 
-	for i, t := range playlist.Items {
+	for i, t := range items.Items {
 		tracks[i] = player.Track{
-			Name:   t.Name.Default,
-			Artist: t.ArtistName.Default,
-			Album:  t.AlbumName.Default,
-			Uri:    t.MobileMediaUrl,
+			Name:   t.Track.Name,
+			Artist: t.Artists[0].Name,
+			Album:  t.Album.Name,
+			Uri:    t.MediaUrl,
 		}
 	}
 
@@ -71,26 +71,25 @@ func (p Taglist) GetName() string {
 }
 
 func (p Taglist) LoadTracks() ([]player.Track, error) {
-	items, err := p.client.GetTaglistTracks(p.Id, api.Options{
-		QueryParams: map[string]string{
-			"perPage": "1000",
-			"sort":    "random",
-		},
-	})
+	items, err := p.client.GetMediaFromTaglist(p.Id, api.GetMediaFromTaglistBody{}, api.Options{})
 	if err != nil {
 		return nil, err
 	}
 
-	tracks := make([]player.Track, len(items.Tracks))
+	tracks := make([]player.Track, len(items.Items))
 
-	for i, t := range items.Tracks {
+	for i, t := range items.Items {
 		tracks[i] = player.Track{
-			Name:   t.Name.Default,
-			Artist: t.ArtistName.Default,
-			Album:  t.AlbumName.Default,
-			Uri:    t.MobileMediaUrl,
+			Name:   t.Track.Name,
+			Artist: t.Artists[0].Name,
+			Album:  t.Album.Name,
+			Uri:    t.MediaUrl,
 		}
 	}
+
+	rand.Shuffle(len(tracks), func(i, j int) {
+		tracks[i], tracks[j] = tracks[j], tracks[i]
+	})
 
 	return tracks, nil
 }
@@ -153,7 +152,7 @@ func (q *DwebbleQueue) FetchLists() error {
 	}
 
 	for _, playlist := range playlists.Playlists {
-		id := GenerateCryptoID()
+		id := "playlist:"+playlist.Id
 		name := fmt.Sprintf("Playlist - %s", playlist.Name)
 
 		q.Lists[id] = Playlist{
@@ -169,7 +168,7 @@ func (q *DwebbleQueue) FetchLists() error {
 	}
 
 	for _, taglist := range taglists.Taglists {
-		id := GenerateCryptoID()
+		id := "taglist:"+taglist.Id
 		name := fmt.Sprintf("Taglist - %s", taglist.Name)
 
 		q.Lists[id] = Taglist{
@@ -197,54 +196,6 @@ func (q *DwebbleQueue) GetStatus() QueueStatus {
 		NumTracks:    len(q.tracks),
 		CurrentTrack: currentTrack,
 	}
-}
-
-func (q *DwebbleQueue) LoadFilter(filter, sort string) error {
-	q.mux.Lock()
-	defer q.mux.Unlock()
-
-	tracks, err := q.client.GetTracks(api.Options{
-		QueryParams: map[string]string{
-			"filter":  filter,
-			"sort":    sort,
-			"perPage": "500",
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	for _, t := range tracks.Tracks {
-		q.tracks = append(q.tracks, player.Track{
-			Name:   t.Name.Default,
-			Artist: t.ArtistName.Default,
-			Album:  t.AlbumName.Default,
-			Uri:    t.MobileMediaUrl,
-		})
-	}
-
-	return nil
-}
-
-func (q *DwebbleQueue) LoadPlaylist(playlistId string) error {
-	q.mux.Lock()
-	defer q.mux.Unlock()
-
-	playlist, err := q.client.GetPlaylistById(playlistId, api.Options{})
-	if err != nil {
-		return err
-	}
-
-	for _, t := range playlist.Items {
-		q.tracks = append(q.tracks, player.Track{
-			Name:   t.Name.Default,
-			Artist: t.ArtistName.Default,
-			Album:  t.AlbumName.Default,
-			Uri:    t.MobileMediaUrl,
-		})
-	}
-
-	return nil
 }
 
 func (q *DwebbleQueue) Clear() {
