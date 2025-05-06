@@ -1,11 +1,10 @@
 package core
 
 import (
+	cryptorand "crypto/rand"
 	"encoding/hex"
 	"fmt"
 	"sync"
-	"math/rand"
-	cryptorand "crypto/rand"
 
 	"github.com/nanoteck137/kricketune/client/api"
 	"github.com/nanoteck137/kricketune/config"
@@ -34,7 +33,7 @@ func (p Playlist) GetName() string {
 }
 
 func (p Playlist) LoadTracks() ([]player.Track, error) {
-	items, err := p.client.GetMediaFromPlaylist(p.Id, api.GetMediaFromPlaylistBody{}, api.Options{})
+	items, err := p.client.GetMediaFromPlaylist(p.Id, api.GetMediaFromPlaylistBody{Shuffle: true}, api.Options{})
 	if err != nil {
 		return nil, err
 	}
@@ -49,10 +48,6 @@ func (p Playlist) LoadTracks() ([]player.Track, error) {
 			Uri:    t.MediaUrl,
 		}
 	}
-
-	rand.Shuffle(len(tracks), func(i, j int) {
-		tracks[i], tracks[j] = tracks[j], tracks[i]
-	})
 
 	return tracks, nil
 }
@@ -71,7 +66,7 @@ func (p Taglist) GetName() string {
 }
 
 func (p Taglist) LoadTracks() ([]player.Track, error) {
-	items, err := p.client.GetMediaFromTaglist(p.Id, api.GetMediaFromTaglistBody{}, api.Options{})
+	items, err := p.client.GetMediaFromTaglist(p.Id, api.GetMediaFromTaglistBody{Shuffle: true}, api.Options{})
 	if err != nil {
 		return nil, err
 	}
@@ -86,10 +81,6 @@ func (p Taglist) LoadTracks() ([]player.Track, error) {
 			Uri:    t.MediaUrl,
 		}
 	}
-
-	rand.Shuffle(len(tracks), func(i, j int) {
-		tracks[i], tracks[j] = tracks[j], tracks[i]
-	})
 
 	return tracks, nil
 }
@@ -152,7 +143,7 @@ func (q *DwebbleQueue) FetchLists() error {
 	}
 
 	for _, playlist := range playlists.Playlists {
-		id := "playlist:"+playlist.Id
+		id := "playlist:" + playlist.Id
 		name := fmt.Sprintf("Playlist - %s", playlist.Name)
 
 		q.Lists[id] = Playlist{
@@ -168,7 +159,7 @@ func (q *DwebbleQueue) FetchLists() error {
 	}
 
 	for _, taglist := range taglists.Taglists {
-		id := "taglist:"+taglist.Id
+		id := "taglist:" + taglist.Id
 		name := fmt.Sprintf("Taglist - %s", taglist.Name)
 
 		q.Lists[id] = Taglist{
