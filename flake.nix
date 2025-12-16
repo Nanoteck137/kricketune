@@ -88,6 +88,8 @@
         };
 
         devShells.default = pkgs.mkShell {
+          GIO_EXTRA_MODULES = [ "${pkgs.glib-networking.out}/lib/gio/modules" ];
+
           buildInputs = with pkgs; [
             air
             go
