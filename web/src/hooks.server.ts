@@ -1,8 +1,8 @@
-import { env } from "$env/dynamic/public";
+import { env } from "$env/dynamic/private";
 import { ApiClient } from "$lib/api/client";
 import type { Handle } from "@sveltejs/kit";
 
-const apiAddress = env.PUBLIC_API_ADDRESS ? env.PUBLIC_API_ADDRESS : "";
+const apiAddress = env.API_ADDRESS ? env.API_ADDRESS : "";
 
 export const handle: Handle = async ({ event, resolve }) => {
   const url = new URL(event.request.url);

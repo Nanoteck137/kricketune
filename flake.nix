@@ -95,6 +95,9 @@
             go
             gopls
             nodejs
+            typescript
+            typescript-language-server
+            svelte-language-server
 
             pkg-config
             gst_all_1.gstreamer

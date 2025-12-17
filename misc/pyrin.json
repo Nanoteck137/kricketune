@@ -9,22 +9,38 @@
   ],
   "types": [
     {
+      "name": "Track",
+      "extend": "",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "omit": false
+        },
+        {
+          "name": "artists",
+          "type": "[]string",
+          "omit": false
+        },
+        {
+          "name": "album",
+          "type": "string",
+          "omit": false
+        },
+        {
+          "name": "coverUrl",
+          "type": "string",
+          "omit": false
+        }
+      ]
+    },
+    {
       "name": "Status",
       "extend": "",
       "fields": [
         {
-          "name": "trackName",
-          "type": "string",
-          "omit": false
-        },
-        {
-          "name": "trackArtist",
-          "type": "string",
-          "omit": false
-        },
-        {
-          "name": "trackAlbum",
-          "type": "string",
+          "name": "currentTrack",
+          "type": "Track",
           "omit": false
         },
         {

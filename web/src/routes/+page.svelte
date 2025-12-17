@@ -60,10 +60,10 @@
 
   <div class="">
     <p class="line-clamp-1 text-center text-2xl">
-      {status?.trackName ?? "Unknown"}
+      {status?.currentTrack.name ?? "Unknown"}
     </p>
     <p class="line-clamp-1 text-center text-xl">
-      {status?.trackArtist ?? "Unknown"}
+      {status?.currentTrack.artists.join(", ") ?? "Unknown"}
     </p>
     {#if status}
       <p class="line-clamp-1 text-center text-lg">

@@ -41,11 +41,18 @@ func (p Playlist) LoadTracks() ([]player.Track, error) {
 	tracks := make([]player.Track, len(items.Items))
 
 	for i, t := range items.Items {
+		artists := make([]string, len(t.Artists))
+
+		for i, artist := range t.Artists {
+			artists[i] = artist.Name
+		}
+
 		tracks[i] = player.Track{
-			Name:   t.Track.Name,
-			Artist: t.Artists[0].Name,
-			Album:  t.Album.Name,
-			Uri:    t.MediaUrl,
+			Name:     t.Track.Name,
+			Artists:  artists,
+			Album:    t.Album.Name,
+			CoverUrl: t.CoverArt.Original,
+			Uri:      t.MediaUrl,
 		}
 	}
 
@@ -74,11 +81,18 @@ func (p Taglist) LoadTracks() ([]player.Track, error) {
 	tracks := make([]player.Track, len(items.Items))
 
 	for i, t := range items.Items {
+		artists := make([]string, len(t.Artists))
+
+		for i, artist := range t.Artists {
+			artists[i] = artist.Name
+		}
+
 		tracks[i] = player.Track{
-			Name:   t.Track.Name,
-			Artist: t.Artists[0].Name,
-			Album:  t.Album.Name,
-			Uri:    t.MediaUrl,
+			Name:     t.Track.Name,
+			Artists:  artists,
+			Album:    t.Album.Name,
+			CoverUrl: t.CoverArt.Original,
+			Uri:      t.MediaUrl,
 		}
 	}
 

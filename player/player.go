@@ -17,10 +17,11 @@ type Queue interface {
 }
 
 type Track struct {
-	Name   string
-	Artist string
-	Album  string
-	Uri    string
+	Name     string
+	Artists  []string
+	Album    string
+	CoverUrl string
+	Uri      string
 }
 
 type Player struct {
@@ -83,7 +84,7 @@ func (p *Player) SetURI(uri string) {
 }
 
 func (p *Player) PlayTrack(track Track) {
-	log.Info("Now Playing", "name", track.Name, "artist", track.Artist, "album", track.Album)
+	log.Info("Now Playing", "name", track.Name, "artists", track.Artists, "album", track.Album)
 
 	p.SetURI(track.Uri)
 	p.Play()

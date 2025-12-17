@@ -8,6 +8,8 @@ import (
 
 	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune/core"
+	"github.com/nanoteck137/kricketune/player"
+	"github.com/nanoteck137/kricketune/utils"
 	"github.com/nanoteck137/pyrin"
 )
 
@@ -20,10 +22,24 @@ type Sets struct {
 	Sets []Set `json:"sets"`
 }
 
+type Track struct {
+	Name     string   `json:"name"`
+	Artists  []string `json:"artists"`
+	Album    string   `json:"album"`
+	CoverUrl string   `json:"coverUrl"`
+}
+
+func ConvertPlayerTrackToTrack(t player.Track) Track {
+	return Track{
+		Name:     t.Name,
+		Artists:  utils.FixNilArrayToEmpty(t.Artists),
+		Album:    t.Album,
+		CoverUrl: t.CoverUrl,
+	}
+}
+
 type Status struct {
-	TrackName   string `json:"trackName"`
-	TrackArtist string `json:"trackArtist"`
-	TrackAlbum  string `json:"trackAlbum"`
+	CurrentTrack Track `json:"currentTrack"`
 
 	IsPlaying bool    `json:"isPlaying"`
 	Volume    float32 `json:"volume"`
@@ -59,21 +75,19 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			ResponseType: Status{},
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				queueStatus := app.Queue().GetStatus()
-				currentTrack := queueStatus.CurrentTrack
-
 				position, duration := app.Player().GetPosition()
 
+				track := ConvertPlayerTrackToTrack(queueStatus.CurrentTrack)
+
 				return Status{
-					TrackName:   currentTrack.Name,
-					TrackArtist: currentTrack.Artist,
-					TrackAlbum:  currentTrack.Album,
-					IsPlaying:   app.Player().IsPlaying(),
-					Volume:      app.Player().GetVolume(),
-					Mute:        app.Player().GetMute(),
-					QueueIndex:  queueStatus.Index,
-					NumTracks:   queueStatus.NumTracks,
-					Position:    position / int64(time.Millisecond),
-					Duration:    duration / int64(time.Millisecond),
+					CurrentTrack: track,
+					IsPlaying:    app.Player().IsPlaying(),
+					Volume:       app.Player().GetVolume(),
+					Mute:         app.Player().GetMute(),
+					QueueIndex:   queueStatus.Index,
+					NumTracks:    queueStatus.NumTracks,
+					Position:     position / int64(time.Millisecond),
+					Duration:     duration / int64(time.Millisecond),
 				}, nil
 			},
 		},
@@ -106,9 +120,9 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 		},
 
 		pyrin.ApiHandler{
-			Name:         "LoadList",
-			Method:       http.MethodPost,
-			Path:         "/player/lists/:id",
+			Name:   "LoadList",
+			Method: http.MethodPost,
+			Path:   "/player/lists/:id",
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				id := c.Param("id")
 
