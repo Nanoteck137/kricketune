@@ -58,6 +58,16 @@
 <div class="container mx-auto">
   <div class="h-16"></div>
 
+  <div class="flex justify-center">
+    <img
+      class="aspect-square w-52"
+      src={status?.currentTrack.coverUrl}
+      alt=""
+    />
+  </div>
+
+  <div class="h-4"></div>
+
   <div class="">
     <p class="line-clamp-1 text-center text-2xl">
       {status?.currentTrack.name ?? "Unknown"}
