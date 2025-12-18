@@ -14,6 +14,7 @@
   import { onMount } from "svelte";
   import { Button, Sheet } from "@nanoteck137/nano-ui";
   import { formatTime } from "$lib";
+  import { z } from "zod";
 
   const { data } = $props();
   const apiClient = new ApiClient(data.apiAddress);
@@ -46,11 +47,42 @@
     updateStatus();
 
     const int = setInterval(async () => {
-      updateStatus();
+      // updateStatus();
     }, 500);
 
     return () => {
       clearInterval(int);
+    };
+  });
+
+  const ConnectedEvent = z.object({});
+
+  const Event = z.discriminatedUnion("type", [
+    z.object({
+      type: z.literal("connected"),
+      data: ConnectedEvent,
+    }),
+  ]);
+
+  onMount(() => {
+    console.log("OnMount");
+    const eventSource = new EventSource(
+      data.apiAddress + "/api/v1/player/sse",
+    );
+
+    eventSource.onmessage = (e) => {
+      const event = Event.parse(JSON.parse(e.data));
+      console.log(event);
+
+      switch (event.type) {
+        case "connected":
+          console.log("Connected to SSE");
+          break;
+      }
+    };
+
+    return () => {
+      eventSource.close();
     };
   });
 </script>

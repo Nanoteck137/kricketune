@@ -1,10 +1,12 @@
 package apis
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune"
 	"github.com/nanoteck137/kricketune/core"
 	"github.com/nanoteck137/pyrin"
@@ -13,6 +15,11 @@ import (
 func RegisterHandlers(app core.App, router pyrin.Router) {
 	g := router.Group("/api/v1")
 	InstallHandlers(app, g)
+
+	app.OnQueueChanged().Register(func(ctx context.Context, data *core.OnQueueChangedEvent) error {
+		pretty.Println(data)
+		return nil
+	})
 
 	g.Register(pyrin.NormalHandler{
 		Method:      http.MethodGet,

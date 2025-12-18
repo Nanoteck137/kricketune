@@ -6,9 +6,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune/core"
 	"github.com/nanoteck137/kricketune/player"
+	"github.com/nanoteck137/kricketune/tools/broker"
 	"github.com/nanoteck137/kricketune/utils"
 	"github.com/nanoteck137/pyrin"
 )
@@ -66,6 +66,9 @@ type SeekBody struct {
 }
 
 func InstallPlayerHandlers(app core.App, group pyrin.Group) {
+	b := broker.NewBroker()
+	b.Start()
+
 	// TODO(patrik): Use http.Method*
 	group.Register(
 		pyrin.ApiHandler{
@@ -138,8 +141,6 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				if err != nil {
 					return nil, err
 				}
-
-				pretty.Println(queue)
 
 				app.Player().Start()
 
@@ -224,6 +225,16 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				// app.Player().ClearQueue()
 				return nil, nil
+			},
+		},
+
+		pyrin.NormalHandler{
+			Name:        "SseHandler",
+			Method:      http.MethodGet,
+			Path:        "/player/sse",
+			HandlerFunc: func(c pyrin.Context) error {
+				b.ServeHTTP(c.Response(), c.Request())
+				return nil
 			},
 		},
 	)

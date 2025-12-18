@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	cryptorand "crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"github.com/nanoteck137/kricketune/client/api"
 	"github.com/nanoteck137/kricketune/config"
 	"github.com/nanoteck137/kricketune/player"
+	"github.com/nanoteck137/kricketune/tools/hook"
 	"github.com/nanoteck137/kricketune/types"
 )
 
@@ -100,6 +102,7 @@ func (p Taglist) LoadTracks() ([]player.Track, error) {
 }
 
 type DwebbleQueue struct {
+	app    App
 	client *api.Client
 
 	// TODO(patrik): Make private?
@@ -110,10 +113,14 @@ type DwebbleQueue struct {
 	tracks []player.Track
 }
 
-func NewDwebbleQueue(client *api.Client) *DwebbleQueue {
+func NewDwebbleQueue(app App, client *api.Client) *DwebbleQueue {
 	return &DwebbleQueue{
+		app:    app,
 		client: client,
 		Lists:  map[string]List{},
+		mux:    sync.RWMutex{},
+		index:  0,
+		tracks: []player.Track{},
 	}
 }
 
@@ -142,6 +149,8 @@ func (q *DwebbleQueue) LoadList(list List) error {
 
 	q.index = 0
 	q.tracks = tracks
+
+	q.app.OnQueueChanged().Call(context.TODO(), &OnQueueChangedEvent{})
 
 	return nil
 }
@@ -251,26 +260,23 @@ type BaseApp struct {
 	client *api.Client
 	user   *User
 	queue  *DwebbleQueue
+
+	onQueueChanged *hook.Hook[*OnQueueChangedEvent]
 }
 
-func (app *BaseApp) User() *User {
-	return nil
-}
+func NewBaseApp(config *config.Config) *BaseApp {
+	client := api.New(config.DwebbleAddress)
 
-func (app *BaseApp) Queue() *DwebbleQueue {
-	return app.queue
-}
+	app := &BaseApp{
+		config: config,
+	}
 
-func (app *BaseApp) Player() *player.Player {
-	return app.player
-}
+	queue := NewDwebbleQueue(app, client)
+	app.queue = queue
 
-func (app *BaseApp) Config() *config.Config {
-	return app.config
-}
+	app.onQueueChanged = hook.NewHook[*OnQueueChangedEvent]("onQueueChanged")
 
-func (app *BaseApp) WorkDir() types.WorkDir {
-	return app.config.WorkDir()
+	return app
 }
 
 func (app *BaseApp) Bootstrap() error {
@@ -308,12 +314,26 @@ func (app *BaseApp) Bootstrap() error {
 	return nil
 }
 
-func NewBaseApp(config *config.Config) *BaseApp {
-	client := api.New(config.DwebbleAddress)
-	queue := NewDwebbleQueue(client)
+func (app *BaseApp) User() *User {
+	return nil
+}
 
-	return &BaseApp{
-		config: config,
-		queue:  queue,
-	}
+func (app *BaseApp) Queue() *DwebbleQueue {
+	return app.queue
+}
+
+func (app *BaseApp) Player() *player.Player {
+	return app.player
+}
+
+func (app *BaseApp) Config() *config.Config {
+	return app.config
+}
+
+func (app *BaseApp) WorkDir() types.WorkDir {
+	return app.config.WorkDir()
+}
+
+func (app *BaseApp) OnQueueChanged() *hook.Hook[*OnQueueChangedEvent] {
+	return app.onQueueChanged
 }

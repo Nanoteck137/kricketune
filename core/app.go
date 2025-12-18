@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/nanoteck137/kricketune/config"
 	"github.com/nanoteck137/kricketune/player"
+	"github.com/nanoteck137/kricketune/tools/hook"
 	"github.com/nanoteck137/kricketune/types"
 )
 
@@ -10,6 +11,9 @@ type User struct {
 	Username        string
 	DisplayName     string
 	QuickPlaylistId *string
+}
+
+type OnQueueChangedEvent struct {
 }
 
 // Inspiration from Pocketbase: https://github.com/pocketbase/pocketbase
@@ -23,4 +27,6 @@ type App interface {
 	WorkDir() types.WorkDir
 
 	Bootstrap() error
+
+	OnQueueChanged() *hook.Hook[*OnQueueChangedEvent]
 }
