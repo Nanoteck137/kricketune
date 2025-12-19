@@ -4,6 +4,7 @@
   import {
     FastForward,
     List as ListIcon,
+    ListX,
     Pause,
     Play,
     Rewind,
@@ -172,6 +173,14 @@
   <div class="h-4"></div>
 
   <div class="flex items-center justify-center gap-4">
+    <button
+      onclick={async () => {
+        await apiClient.clearQueue();
+      }}
+    >
+      <ListX size={42} />
+    </button>
+
     <button
       onclick={async () => {
         await apiClient.rewindTrack();

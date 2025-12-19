@@ -230,7 +230,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			Method: "POST",
 			Path:   "/player/clearQueue",
 			HandlerFunc: func(c pyrin.Context) (any, error) {
-				// app.Player().ClearQueue()
+				app.Player().ClearQueue()
 				return nil, nil
 			},
 		},

@@ -14,6 +14,7 @@ type Queue interface {
 	Next()
 	Prev()
 	CurrentTrack() (Track, bool)
+	ClearQueue()
 }
 
 type Track struct {
@@ -147,6 +148,12 @@ func (p *Player) Seek(skip time.Duration) {
 
 func (p *Player) RewindTrack() {
 	p.playbin.SeekTime(0, gst.SeekFlagFlush)
+}
+
+func (p *Player) ClearQueue() {
+	p.queue.ClearQueue()
+	p.Stop()
+	p.SetURI("")
 }
 
 func Launch(player *Player) error {

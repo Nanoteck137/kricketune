@@ -15,8 +15,6 @@ import (
 	"github.com/nanoteck137/kricketune/types"
 )
 
-var _ player.Queue = (*DwebbleQueue)(nil)
-
 type List interface {
 	GetName() string
 	LoadTracks() ([]player.Track, error)
@@ -102,6 +100,8 @@ func (p Taglist) LoadTracks() ([]player.Track, error) {
 	return tracks, nil
 }
 
+var _ player.Queue = (*DwebbleQueue)(nil)
+
 type DwebbleQueue struct {
 	app    App
 	client *api.Client
@@ -113,6 +113,7 @@ type DwebbleQueue struct {
 	index  int
 	tracks []player.Track
 }
+
 
 func NewDwebbleQueue(app App, client *api.Client) *DwebbleQueue {
 	return &DwebbleQueue{
@@ -219,6 +220,11 @@ func (q *DwebbleQueue) Clear() {
 
 	q.index = 0
 	q.tracks = nil
+}
+
+func (q *DwebbleQueue) ClearQueue() {
+	q.Clear()
+	q.app.OnQueueChanged().Call(context.TODO(), &OnQueueChangedEvent{})
 }
 
 func (q *DwebbleQueue) CurrentTrack() (player.Track, bool) {
