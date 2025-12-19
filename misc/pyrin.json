@@ -81,6 +81,28 @@
       ]
     },
     {
+      "name": "SeekBody",
+      "extend": "",
+      "fields": [
+        {
+          "name": "skip",
+          "type": "int",
+          "omit": false
+        }
+      ]
+    },
+    {
+      "name": "GetQueue",
+      "extend": "",
+      "fields": [
+        {
+          "name": "tracks",
+          "type": "[]Track",
+          "omit": false
+        }
+      ]
+    },
+    {
       "name": "List",
       "extend": "",
       "fields": [
@@ -106,17 +128,6 @@
           "omit": false
         }
       ]
-    },
-    {
-      "name": "SeekBody",
-      "extend": "",
-      "fields": [
-        {
-          "name": "skip",
-          "type": "int",
-          "omit": false
-        }
-      ]
     }
   ],
   "apiEndpoints": [
@@ -125,20 +136,6 @@
       "method": "GET",
       "path": "/api/v1/player/status",
       "responseType": "Status",
-      "bodyType": ""
-    },
-    {
-      "name": "GetLists",
-      "method": "GET",
-      "path": "/api/v1/player/lists",
-      "responseType": "GetLists",
-      "bodyType": ""
-    },
-    {
-      "name": "LoadList",
-      "method": "POST",
-      "path": "/api/v1/player/lists/:id",
-      "responseType": "",
       "bodyType": ""
     },
     {
@@ -189,14 +186,35 @@
       "path": "/api/v1/player/clearQueue",
       "responseType": "",
       "bodyType": ""
+    },
+    {
+      "name": "GetQueue",
+      "method": "GET",
+      "path": "/api/v1/player/queue",
+      "responseType": "GetQueue",
+      "bodyType": ""
+    },
+    {
+      "name": "GetLists",
+      "method": "GET",
+      "path": "/api/v1/player/lists",
+      "responseType": "GetLists",
+      "bodyType": ""
+    },
+    {
+      "name": "LoadList",
+      "method": "POST",
+      "path": "/api/v1/player/lists/:id",
+      "responseType": "",
+      "bodyType": ""
     }
   ],
   "formApiEndpoints": null,
   "normalEndpoints": [
     {
-      "name": "",
+      "name": "SseHandler",
       "method": "GET",
-      "path": "/api/v1/sse"
+      "path": "/api/v1/player/sse"
     }
   ]
 }

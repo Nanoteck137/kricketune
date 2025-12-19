@@ -5,6 +5,7 @@ import (
 	cryptorand "crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"slices"
 	"sync"
 
 	"github.com/nanoteck137/kricketune/client/api"
@@ -249,6 +250,13 @@ func (q *DwebbleQueue) Prev() {
 	if q.index < 0 {
 		q.index = 0
 	}
+}
+
+func (q *DwebbleQueue) CloneTracks() []player.Track {
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
+	return slices.Clone(q.tracks)
 }
 
 var _ App = (*BaseApp)(nil)

@@ -21,6 +21,16 @@ export const Status = z.object({
 });
 export type Status = z.infer<typeof Status>;
 
+export const SeekBody = z.object({
+  skip: z.number(),
+});
+export type SeekBody = z.infer<typeof SeekBody>;
+
+export const GetQueue = z.object({
+  tracks: z.array(Track),
+});
+export type GetQueue = z.infer<typeof GetQueue>;
+
 export const List = z.object({
   id: z.string(),
   name: z.string(),
@@ -31,9 +41,4 @@ export const GetLists = z.object({
   lists: z.array(List),
 });
 export type GetLists = z.infer<typeof GetLists>;
-
-export const SeekBody = z.object({
-  skip: z.number(),
-});
-export type SeekBody = z.infer<typeof SeekBody>;
 

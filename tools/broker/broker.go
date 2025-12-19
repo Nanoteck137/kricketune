@@ -3,7 +3,6 @@ package broker
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
 )
 
@@ -38,10 +37,8 @@ func (broker *Broker) Listen() {
 	for {
 		select {
 		case s := <-broker.newClients:
-			slog.Info("New Client")
 			broker.clients[s] = true
 		case s := <-broker.closingClients:
-			slog.Info("Removed Client")
 			delete(broker.clients, s)
 		case event := <-broker.notifier:
 			for clientMessageChan := range broker.clients {
@@ -85,15 +82,16 @@ func (broker *Broker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	sendEvent := func(eventData EventData) {
+		fmt.Fprintf(w, "event: %s\n", eventData.GetEventType())
 		fmt.Fprintf(w, "data: ")
 
-		event := Event{
-			Type: eventData.GetEventType(),
-			Data: eventData,
-		}
+		// event := Event{
+		// 	Type: eventData.GetEventType(),
+		// 	Data: eventData,
+		// }
 
 		encode := json.NewEncoder(w)
-		encode.Encode(event)
+		encode.Encode(eventData)
 
 		fmt.Fprintf(w, "\n\n")
 		rc.Flush()

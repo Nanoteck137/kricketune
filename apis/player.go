@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"sort"
@@ -52,6 +53,16 @@ type Status struct {
 	Duration int64 `json:"duration"`
 }
 
+var _ broker.EventData = (*StatusEvent)(nil)
+
+type StatusEvent struct {
+	Status
+}
+
+func (s StatusEvent) GetEventType() string {
+	return "status"
+}
+
 type List struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
@@ -65,9 +76,58 @@ type SeekBody struct {
 	Skip int `json:"skip"`
 }
 
+var _ broker.EventData = (*QueueChangedEvent)(nil)
+
+type QueueChangedEvent struct{}
+
+func (q *QueueChangedEvent) GetEventType() string {
+	return "queueChanged"
+}
+
+type GetQueue struct {
+	Tracks []Track `json:"tracks"`
+}
+
 func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 	b := broker.NewBroker()
-	b.Start()
+
+	if app != nil {
+		b.Start()
+
+		go func() {
+			ticker := time.NewTicker(500 * time.Millisecond)
+			for {
+				select {
+				case <-ticker.C:
+					queueStatus := app.Queue().GetStatus()
+					position, duration := app.Player().GetPosition()
+
+					track := ConvertPlayerTrackToTrack(queueStatus.CurrentTrack)
+
+					s := Status{
+						CurrentTrack: track,
+						IsPlaying:    app.Player().IsPlaying(),
+						Volume:       app.Player().GetVolume(),
+						Mute:         app.Player().GetMute(),
+						QueueIndex:   queueStatus.Index,
+						NumTracks:    queueStatus.NumTracks,
+						Position:     position / int64(time.Millisecond),
+						Duration:     duration / int64(time.Millisecond),
+					}
+
+					b.EmitEvent(StatusEvent{
+						Status: s,
+					})
+				}
+			}
+		}()
+
+		app.OnQueueChanged().Register(func(ctx context.Context, data *core.OnQueueChangedEvent) error {
+			b.EmitEvent(&QueueChangedEvent{})
+
+			return nil
+		})
+	}
 
 	// TODO(patrik): Use http.Method*
 	group.Register(
@@ -92,59 +152,6 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 					Position:     position / int64(time.Millisecond),
 					Duration:     duration / int64(time.Millisecond),
 				}, nil
-			},
-		},
-
-		pyrin.ApiHandler{
-			Name:         "GetLists",
-			Method:       "GET",
-			Path:         "/player/lists",
-			ResponseType: GetLists{},
-			HandlerFunc: func(c pyrin.Context) (any, error) {
-				queue := app.Queue()
-
-				res := GetLists{
-					Lists: make([]List, 0, len(queue.Lists)),
-				}
-
-				for id, list := range queue.Lists {
-					res.Lists = append(res.Lists, List{
-						Id:   id,
-						Name: list.GetName(),
-					})
-				}
-
-				sort.Slice(res.Lists, func(i, j int) bool {
-					return res.Lists[i].Name < res.Lists[j].Name
-				})
-
-				return res, nil
-			},
-		},
-
-		pyrin.ApiHandler{
-			Name:   "LoadList",
-			Method: http.MethodPost,
-			Path:   "/player/lists/:id",
-			HandlerFunc: func(c pyrin.Context) (any, error) {
-				id := c.Param("id")
-
-				queue := app.Queue()
-
-				list, exists := queue.Lists[id]
-				if !exists {
-					// TODO(patrik): Error
-					return nil, errors.New("No list with id")
-				}
-
-				err := queue.LoadList(list)
-				if err != nil {
-					return nil, err
-				}
-
-				app.Player().Start()
-
-				return nil, nil
 			},
 		},
 
@@ -228,10 +235,83 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			},
 		},
 
+		pyrin.ApiHandler{
+			Name:         "GetQueue",
+			Method:       http.MethodGet,
+			Path:         "/player/queue",
+			ResponseType: GetQueue{},
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				tracks := app.Queue().CloneTracks()
+
+				res := GetQueue{
+					Tracks: make([]Track, len(tracks)),
+				}
+
+				for i, t := range tracks {
+					res.Tracks[i] = ConvertPlayerTrackToTrack(t)
+				}
+
+				return res, nil
+			},
+		},
+
+		pyrin.ApiHandler{
+			Name:         "GetLists",
+			Method:       "GET",
+			Path:         "/player/lists",
+			ResponseType: GetLists{},
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				queue := app.Queue()
+
+				res := GetLists{
+					Lists: make([]List, 0, len(queue.Lists)),
+				}
+
+				for id, list := range queue.Lists {
+					res.Lists = append(res.Lists, List{
+						Id:   id,
+						Name: list.GetName(),
+					})
+				}
+
+				sort.Slice(res.Lists, func(i, j int) bool {
+					return res.Lists[i].Name < res.Lists[j].Name
+				})
+
+				return res, nil
+			},
+		},
+
+		pyrin.ApiHandler{
+			Name:   "LoadList",
+			Method: http.MethodPost,
+			Path:   "/player/lists/:id",
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				id := c.Param("id")
+
+				queue := app.Queue()
+
+				list, exists := queue.Lists[id]
+				if !exists {
+					// TODO(patrik): Error
+					return nil, errors.New("No list with id")
+				}
+
+				err := queue.LoadList(list)
+				if err != nil {
+					return nil, err
+				}
+
+				app.Player().Start()
+
+				return nil, nil
+			},
+		},
+
 		pyrin.NormalHandler{
-			Name:        "SseHandler",
-			Method:      http.MethodGet,
-			Path:        "/player/sse",
+			Name:   "SseHandler",
+			Method: http.MethodGet,
+			Path:   "/player/sse",
 			HandlerFunc: func(c pyrin.Context) error {
 				b.ServeHTTP(c.Response(), c.Request())
 				return nil

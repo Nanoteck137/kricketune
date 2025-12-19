@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ApiClient } from "$lib/api/client.js";
-  import type { Status, List } from "$lib/api/types.js";
+  import { Status, Track, type List } from "$lib/api/types.js";
   import {
     FastForward,
     List as ListIcon,
@@ -15,11 +15,13 @@
   import { Button, Sheet } from "@nanoteck137/nano-ui";
   import { formatTime } from "$lib";
   import { z } from "zod";
+  import { ReconnectingEventSource } from "$lib/event.js";
 
   const { data } = $props();
   const apiClient = new ApiClient(data.apiAddress);
 
   let lists = $state<List[]>([]);
+  let queue = $state<Track[]>([]);
   let status = $state<Status | undefined>(data.status);
 
   async function getLists() {
@@ -32,27 +34,19 @@
     lists = res.data.lists;
   }
 
-  async function updateStatus() {
-    const res = await apiClient.getStatus();
+  async function getQueue() {
+    const res = await apiClient.getQueue();
     if (!res.success) {
       console.error(res.error);
       return;
     }
 
-    status = res.data;
+    queue = res.data.tracks;
   }
 
   onMount(() => {
     getLists();
-    updateStatus();
-
-    const int = setInterval(async () => {
-      // updateStatus();
-    }, 500);
-
-    return () => {
-      clearInterval(int);
-    };
+    getQueue();
   });
 
   const ConnectedEvent = z.object({});
@@ -81,10 +75,69 @@
       }
     };
 
+    eventSource.addEventListener("connected", (e) => {
+      console.log(e.data);
+    });
+
+    const StatusEvent = Status.extend({});
+
+    eventSource.addEventListener("status", (e) => {
+      const data = StatusEvent.parse(JSON.parse(e.data));
+      status = data;
+    });
+
+    eventSource.addEventListener("queueChanged", (e) => {
+      console.log("queueChanged", e.data);
+      getQueue();
+    });
+
     return () => {
       eventSource.close();
     };
   });
+
+  /*
+  onMount(() => {
+    // Usage example:
+    const sse = new ReconnectingEventSource(
+      data.apiAddress + "/api/v1/player/sse",
+      {
+        reconnectInterval: 3000, // Wait 3 seconds before reconnecting
+        maxReconnectAttempts: 10, // Try up to 10 times (use Infinity for unlimited)
+      },
+    );
+
+    sse.addEventListener("open", (e: Event) => {
+      console.log("Connection opened");
+    });
+
+    sse.addEventListener("message", (e: Event | MessageEvent) => {
+      if ("data" in e) {
+        console.log("Received:", e.data);
+      }
+    });
+
+    sse.addEventListener("error", (e: Event) => {
+      console.log("Connection error", e);
+    });
+
+    sse.addEventListener("maxReconnectAttemptsReached", () => {
+      console.log("Could not reconnect after maximum attempts");
+    });
+
+    // Listen for custom event types
+    sse.addEventListener("customEvent", (e: Event | MessageEvent) => {
+      if ("data" in e) {
+        console.log("Custom event:", e.data);
+      }
+    });
+
+    // To close the connection:
+    return () => {
+      sse.close();
+    };
+  });
+  */
 </script>
 
 <div class="container mx-auto">
@@ -155,8 +208,6 @@
         } else {
           await apiClient.play();
         }
-
-        await updateStatus();
       }}
     >
       {#if status?.isPlaying}
@@ -211,5 +262,11 @@
         </div>
       </Sheet.Content>
     </Sheet.Root>
+  </div>
+
+  <div class="flex flex-col">
+    {#each queue as t, i}
+      <p class={i === status?.queueIndex ? "text-red-200" : ""}>{t.name}</p>
+    {/each}
   </div>
 </div>
