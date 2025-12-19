@@ -283,6 +283,33 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 		},
 
 		pyrin.ApiHandler{
+			Name:         "RefreshList",
+			Method:       http.MethodPost,
+			Path:         "/player/lists/refresh",
+			ResponseType: GetLists{},
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				queue := app.Queue()
+
+				res := GetLists{
+					Lists: make([]List, 0, len(queue.Lists)),
+				}
+
+				for id, list := range queue.Lists {
+					res.Lists = append(res.Lists, List{
+						Id:   id,
+						Name: list.GetName(),
+					})
+				}
+
+				sort.Slice(res.Lists, func(i, j int) bool {
+					return res.Lists[i].Name < res.Lists[j].Name
+				})
+
+				return res, nil
+			},
+		},
+
+		pyrin.ApiHandler{
 			Name:   "LoadList",
 			Method: http.MethodPost,
 			Path:   "/player/lists/:id",
