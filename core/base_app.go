@@ -2,8 +2,6 @@ package core
 
 import (
 	"context"
-	cryptorand "crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"slices"
 	"sync"
@@ -126,14 +124,6 @@ func NewDwebbleQueue(app App, client *api.Client) *DwebbleQueue {
 	}
 }
 
-func GenerateCryptoID() string {
-	bytes := make([]byte, 16)
-	if _, err := cryptorand.Read(bytes); err != nil {
-		panic(err)
-	}
-	return hex.EncodeToString(bytes)
-}
-
 type QueueStatus struct {
 	Index        int
 	NumTracks    int
@@ -158,8 +148,9 @@ func (q *DwebbleQueue) LoadList(list List) error {
 }
 
 func (q *DwebbleQueue) FetchLists() error {
-	// q.mux.Lock()
-	// defer q.mux.Unlock()
+	q.mux.Lock()
+	defer q.mux.Unlock()
+
 	clear(q.Lists)
 
 	playlists, err := q.client.GetPlaylists(api.Options{})

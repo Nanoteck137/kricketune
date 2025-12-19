@@ -274,8 +274,11 @@
   </div>
 
   <div class="flex flex-col">
+    <p>{(status?.queueIndex ?? 0) + 1} / {status?.numTracks}</p>
     {#each queue as t, i}
-      <p class={i === status?.queueIndex ? "text-red-200" : ""}>{t.name}</p>
+      <p class={i === status?.queueIndex ? "text-red-200" : ""}>
+        {i + 1} - {t.name}
+      </p>
     {/each}
   </div>
 </div>
