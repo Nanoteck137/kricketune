@@ -1,13 +1,12 @@
 <script lang="ts">
   import { formatTime } from "$lib";
   import type { ApiClient } from "$lib/api/client";
-  import type { List, Status } from "$lib/api/types";
+  import type { Status } from "$lib/api/types";
   import {
     FastForward,
     Pause,
     Play,
     Rewind,
-    RotateCcw,
     SkipBack,
     SkipForward,
   } from "lucide-svelte";

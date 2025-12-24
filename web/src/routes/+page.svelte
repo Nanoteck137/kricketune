@@ -86,49 +86,6 @@
       eventSource.close();
     };
   });
-
-  /*
-  onMount(() => {
-    // Usage example:
-    const sse = new ReconnectingEventSource(
-      data.apiAddress + "/api/v1/player/sse",
-      {
-        reconnectInterval: 3000, // Wait 3 seconds before reconnecting
-        maxReconnectAttempts: 10, // Try up to 10 times (use Infinity for unlimited)
-      },
-    );
-
-    sse.addEventListener("open", (e: Event) => {
-      console.log("Connection opened");
-    });
-
-    sse.addEventListener("message", (e: Event | MessageEvent) => {
-      if ("data" in e) {
-        console.log("Received:", e.data);
-      }
-    });
-
-    sse.addEventListener("error", (e: Event) => {
-      console.log("Connection error", e);
-    });
-
-    sse.addEventListener("maxReconnectAttemptsReached", () => {
-      console.log("Could not reconnect after maximum attempts");
-    });
-
-    // Listen for custom event types
-    sse.addEventListener("customEvent", (e: Event | MessageEvent) => {
-      if ("data" in e) {
-        console.log("Custom event:", e.data);
-      }
-    });
-
-    // To close the connection:
-    return () => {
-      sse.close();
-    };
-  });
-  */
 </script>
 
 <div class="container mx-auto">
