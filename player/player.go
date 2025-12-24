@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-gst/go-glib/glib"
 	"github.com/go-gst/go-gst/gst"
-	"github.com/kr/pretty"
 	"github.com/nanoteck137/kricketune/core/log"
 )
 
@@ -132,7 +131,6 @@ func (p *Player) PrevTrack() {
 func (p *Player) SetQueueIndex(index int) {
 	p.queue.SetQueueIndex(index)
 	track, ok := p.queue.CurrentTrack()
-	pretty.Println(track)
 	if ok {
 		p.PlayTrack(track)
 	}
@@ -182,7 +180,6 @@ func Launch(player *Player) error {
 		case gst.MessageError:
 			err := msg.ParseError()
 			fmt.Println("ERROR:", err.Error())
-			pretty.Println(err)
 			if debug := err.DebugString(); debug != "" {
 				fmt.Println("DEBUG")
 				fmt.Println(debug)
