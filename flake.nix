@@ -55,7 +55,7 @@
             pkgs.openssl
           ];
 
-          vendorHash = "sha256-mGoLemgrMMXHdDYZdNEVwOFZ4ML6C9pUDuHUp5eAyUE=";
+          vendorHash = "sha256-RjN7azQ2TmU+2/+VhBg5eoDHTBvc9XX6A8bLBhI9ogA=";
         };
 
         frontend = pkgs.buildNpmPackage {
@@ -63,7 +63,7 @@
           version = fullVersion;
 
           src = gitignore.lib.gitignoreSource ./web;
-          npmDepsHash = "sha256-UvBnZdlccHERqZtnihmeCOl382Av5WvVmER0OTOVfB0=";
+          npmDepsHash = "sha256-uirrNTJ4eEWPfqoA+hc/UtyeENlNULKF0jVwsK1c/ng=";
 
           PUBLIC_VERSION=version;
           PUBLIC_COMMIT=self.rev or "dirty";
