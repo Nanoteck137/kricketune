@@ -158,7 +158,7 @@
         tab = "list";
       }}
     >
-      List
+      Lists
     </button>
 
     <button

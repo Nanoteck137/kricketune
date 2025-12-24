@@ -33,7 +33,7 @@
   </Button>
 </div>
 
-<div class="h-8"></div>
+<div class="h-4"></div>
 
 <div class="flex flex-col gap-2">
   {#each queue as t, i}
