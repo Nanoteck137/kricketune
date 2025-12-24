@@ -1,224 +1,202 @@
 {
-  "errorTypes": [
-    "BAD_CONTENT_TYPE_ERROR",
-    "EMPTY_BODY_ERROR",
-    "FORM_VALIDATION_ERROR",
-    "ROUTE_NOT_FOUND",
-    "UNKNOWN_ERROR",
-    "VALIDATION_ERROR"
-  ],
-  "types": [
+  "version": 1,
+  "structures": [
     {
-      "name": "Track",
-      "extend": "",
+      "name": "GetLists",
       "fields": [
         {
-          "name": "name",
-          "type": "string",
-          "omit": false
-        },
-        {
-          "name": "artists",
-          "type": "[]string",
-          "omit": false
-        },
-        {
-          "name": "album",
-          "type": "string",
-          "omit": false
-        },
-        {
-          "name": "coverUrl",
-          "type": "string",
-          "omit": false
-        }
-      ]
-    },
-    {
-      "name": "Status",
-      "extend": "",
-      "fields": [
-        {
-          "name": "currentTrack",
-          "type": "Track",
-          "omit": false
-        },
-        {
-          "name": "isPlaying",
-          "type": "bool",
-          "omit": false
-        },
-        {
-          "name": "volume",
-          "type": "int",
-          "omit": false
-        },
-        {
-          "name": "mute",
-          "type": "bool",
-          "omit": false
-        },
-        {
-          "name": "queueIndex",
-          "type": "int",
-          "omit": false
-        },
-        {
-          "name": "numTracks",
-          "type": "int",
-          "omit": false
-        },
-        {
-          "name": "position",
-          "type": "int",
-          "omit": false
-        },
-        {
-          "name": "duration",
-          "type": "int",
-          "omit": false
-        }
-      ]
-    },
-    {
-      "name": "SeekBody",
-      "extend": "",
-      "fields": [
-        {
-          "name": "skip",
-          "type": "int",
-          "omit": false
+          "name": "lists",
+          "type": "[]List",
+          "omitEmpty": false
         }
       ]
     },
     {
       "name": "GetQueue",
-      "extend": "",
       "fields": [
         {
           "name": "tracks",
           "type": "[]Track",
-          "omit": false
+          "omitEmpty": false
         }
       ]
     },
     {
       "name": "List",
-      "extend": "",
       "fields": [
         {
           "name": "id",
           "type": "string",
-          "omit": false
+          "omitEmpty": false
         },
         {
           "name": "name",
           "type": "string",
-          "omit": false
+          "omitEmpty": false
         }
       ]
     },
     {
-      "name": "GetLists",
-      "extend": "",
+      "name": "SeekBody",
       "fields": [
         {
-          "name": "lists",
-          "type": "[]List",
-          "omit": false
+          "name": "skip",
+          "type": "int",
+          "omitEmpty": false
+        }
+      ]
+    },
+    {
+      "name": "Status",
+      "fields": [
+        {
+          "name": "currentTrack",
+          "type": "Track",
+          "omitEmpty": false
+        },
+        {
+          "name": "isPlaying",
+          "type": "bool",
+          "omitEmpty": false
+        },
+        {
+          "name": "volume",
+          "type": "float",
+          "omitEmpty": false
+        },
+        {
+          "name": "mute",
+          "type": "bool",
+          "omitEmpty": false
+        },
+        {
+          "name": "queueIndex",
+          "type": "int",
+          "omitEmpty": false
+        },
+        {
+          "name": "numTracks",
+          "type": "int",
+          "omitEmpty": false
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "omitEmpty": false
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "omitEmpty": false
+        }
+      ]
+    },
+    {
+      "name": "Track",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "omitEmpty": false
+        },
+        {
+          "name": "artists",
+          "type": "[]string",
+          "omitEmpty": false
+        },
+        {
+          "name": "album",
+          "type": "string",
+          "omitEmpty": false
+        },
+        {
+          "name": "coverUrl",
+          "type": "string",
+          "omitEmpty": false
         }
       ]
     }
   ],
-  "apiEndpoints": [
+  "endpoints": [
     {
-      "name": "GetStatus",
-      "method": "GET",
-      "path": "/api/v1/player/status",
-      "responseType": "Status",
-      "bodyType": ""
-    },
-    {
-      "name": "Play",
-      "method": "POST",
-      "path": "/api/v1/player/play",
-      "responseType": "",
-      "bodyType": ""
-    },
-    {
-      "name": "Pause",
-      "method": "POST",
-      "path": "/api/v1/player/pause",
-      "responseType": "",
-      "bodyType": ""
-    },
-    {
-      "name": "Next",
-      "method": "POST",
-      "path": "/api/v1/player/next",
-      "responseType": "",
-      "bodyType": ""
-    },
-    {
-      "name": "Prev",
-      "method": "POST",
-      "path": "/api/v1/player/prev",
-      "responseType": "",
-      "bodyType": ""
-    },
-    {
-      "name": "RewindTrack",
-      "method": "POST",
-      "path": "/api/v1/player/rewindTrack",
-      "responseType": "",
-      "bodyType": ""
-    },
-    {
-      "name": "Seek",
-      "method": "POST",
-      "path": "/api/v1/player/seek",
-      "responseType": "",
-      "bodyType": "SeekBody"
-    },
-    {
+      "type": "api",
       "name": "ClearQueue",
       "method": "POST",
-      "path": "/api/v1/player/clearQueue",
-      "responseType": "",
-      "bodyType": ""
+      "path": "/api/v1/player/clearQueue"
     },
     {
-      "name": "GetQueue",
-      "method": "GET",
-      "path": "/api/v1/player/queue",
-      "responseType": "GetQueue",
-      "bodyType": ""
-    },
-    {
+      "type": "api",
       "name": "GetLists",
       "method": "GET",
       "path": "/api/v1/player/lists",
-      "responseType": "GetLists",
-      "bodyType": ""
+      "response": "GetLists"
     },
     {
+      "type": "api",
+      "name": "GetQueue",
+      "method": "GET",
+      "path": "/api/v1/player/queue",
+      "response": "GetQueue"
+    },
+    {
+      "type": "api",
+      "name": "GetStatus",
+      "method": "GET",
+      "path": "/api/v1/player/status",
+      "response": "Status"
+    },
+    {
+      "type": "api",
+      "name": "LoadList",
+      "method": "POST",
+      "path": "/api/v1/player/lists/:id"
+    },
+    {
+      "type": "api",
+      "name": "Next",
+      "method": "POST",
+      "path": "/api/v1/player/next"
+    },
+    {
+      "type": "api",
+      "name": "Pause",
+      "method": "POST",
+      "path": "/api/v1/player/pause"
+    },
+    {
+      "type": "api",
+      "name": "Play",
+      "method": "POST",
+      "path": "/api/v1/player/play"
+    },
+    {
+      "type": "api",
+      "name": "Prev",
+      "method": "POST",
+      "path": "/api/v1/player/prev"
+    },
+    {
+      "type": "api",
       "name": "RefreshList",
       "method": "POST",
       "path": "/api/v1/player/lists/refresh",
-      "responseType": "GetLists",
-      "bodyType": ""
+      "response": "GetLists"
     },
     {
-      "name": "LoadList",
+      "type": "api",
+      "name": "RewindTrack",
       "method": "POST",
-      "path": "/api/v1/player/lists/:id",
-      "responseType": "",
-      "bodyType": ""
-    }
-  ],
-  "formApiEndpoints": null,
-  "normalEndpoints": [
+      "path": "/api/v1/player/rewindTrack"
+    },
     {
+      "type": "api",
+      "name": "Seek",
+      "method": "POST",
+      "path": "/api/v1/player/seek",
+      "body": "SeekBody"
+    },
+    {
+      "type": "normal",
       "name": "SseHandler",
       "method": "GET",
       "path": "/api/v1/player/sse"

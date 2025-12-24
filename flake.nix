@@ -10,9 +10,11 @@
 
     devtools.url     = "github:nanoteck137/devtools";
     devtools.inputs.nixpkgs.follows = "nixpkgs";
+
+    pyrin.url = "github:nanoteck137/pyrin";
   };
 
-  outputs = { self, nixpkgs, flake-utils, gitignore, devtools, ... }:
+  outputs = { self, nixpkgs, flake-utils, gitignore, devtools, pyrin, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [];
@@ -98,6 +100,8 @@
             typescript
             typescript-language-server
             svelte-language-server
+
+            pyrin.packages.${system}.default
 
             pkg-config
             gst_all_1.gstreamer
