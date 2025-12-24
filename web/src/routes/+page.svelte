@@ -53,9 +53,7 @@
 
   onMount(() => {
     console.log("OnMount");
-    const eventSource = new EventSource(
-      data.apiAddress + "/api/v1/player/sse",
-    );
+    const eventSource = new EventSource(apiClient.url.sseHandler());
 
     eventSource.onmessage = (e) => {
       const event = Event.parse(JSON.parse(e.data));
@@ -136,9 +134,14 @@
 <div class="container mx-auto">
   <div class="h-4"></div>
 
-  <div class="flex items-center justify-center gap-4 bg-red-400 py-4">
+  <div
+    class="flex flex-col items-center justify-center gap-4 border-b sm:flex-row"
+  >
     <button
-      class={cn("text-xl", tab === "player" ? "text-blue-200" : "")}
+      class={cn(
+        "relative w-24 py-2 text-xl",
+        tab === "player" ? "border-b border-blue-200 text-blue-200" : "",
+      )}
       onclick={() => {
         tab = "player";
       }}
@@ -147,7 +150,10 @@
     </button>
 
     <button
-      class={cn("text-xl", tab === "list" ? "text-blue-200" : "")}
+      class={cn(
+        "w-24 py-2 text-xl",
+        tab === "list" ? "border-b border-blue-200 text-blue-200" : "",
+      )}
       onclick={() => {
         tab = "list";
       }}
@@ -156,7 +162,10 @@
     </button>
 
     <button
-      class={cn("text-xl", tab === "queue" ? "text-blue-200" : "")}
+      class={cn(
+        "w-24 py-2 text-xl",
+        tab === "queue" ? "border-b border-blue-200 text-blue-200" : "",
+      )}
       onclick={() => {
         tab = "queue";
       }}
@@ -165,7 +174,10 @@
     </button>
 
     <button
-      class={cn("text-xl", tab === "snapcast" ? "text-blue-200" : "")}
+      class={cn(
+        "w-24 py-2 text-xl",
+        tab === "snapcast" ? "border-b border-blue-200 text-blue-200" : "",
+      )}
       onclick={() => {
         tab = "snapcast";
       }}

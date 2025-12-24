@@ -45,13 +45,13 @@
 <div class="h-4"></div>
 
 <div class="flex items-center justify-center gap-4">
-  <button
+  <!-- <button
     onclick={async () => {
       await apiClient.rewindTrack();
     }}
   >
     <RotateCcw size={32} />
-  </button>
+  </button> -->
 
   <button
     onclick={async () => {
@@ -109,5 +109,5 @@
     <FastForward size={32} />
   </button>
 
-  <div class="h-8 w-8"></div>
+  <!-- <div class="min-h-8 min-w-8"></div> -->
 </div>
