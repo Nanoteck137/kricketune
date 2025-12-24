@@ -44,6 +44,13 @@ export const SeekBody = z.object({
 });
 export type SeekBody = z.infer<typeof SeekBody>;
 
+// Name: SetQueueIndexBody
+export const SetQueueIndexBody = z.object({
+  // Name: SetQueueIndexBody.index
+  "index": z.number(),
+});
+export type SetQueueIndexBody = z.infer<typeof SetQueueIndexBody>;
+
 // Name: Status
 export const Status = z.object({
   // Name: Status.currentTrack

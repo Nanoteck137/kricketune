@@ -47,6 +47,16 @@
       ]
     },
     {
+      "name": "SetQueueIndexBody",
+      "fields": [
+        {
+          "name": "index",
+          "type": "int",
+          "omitEmpty": false
+        }
+      ]
+    },
+    {
       "name": "Status",
       "fields": [
         {
@@ -194,6 +204,13 @@
       "method": "POST",
       "path": "/api/v1/player/seek",
       "body": "SeekBody"
+    },
+    {
+      "type": "api",
+      "name": "SetQueueIndex",
+      "method": "POST",
+      "path": "/api/v1/player/queueIndex",
+      "body": "SetQueueIndexBody"
     },
     {
       "type": "normal",

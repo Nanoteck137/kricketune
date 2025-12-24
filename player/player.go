@@ -15,6 +15,7 @@ type Queue interface {
 	Prev()
 	CurrentTrack() (Track, bool)
 	ClearQueue()
+	SetQueueIndex(index int)
 }
 
 type Track struct {
@@ -123,6 +124,15 @@ func (p *Player) NextTrack() {
 func (p *Player) PrevTrack() {
 	p.queue.Prev()
 	track, ok := p.queue.CurrentTrack()
+	if ok {
+		p.PlayTrack(track)
+	}
+}
+
+func (p *Player) SetQueueIndex(index int) {
+	p.queue.SetQueueIndex(index)
+	track, ok := p.queue.CurrentTrack()
+	pretty.Println(track)
 	if ok {
 		p.PlayTrack(track)
 	}

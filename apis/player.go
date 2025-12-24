@@ -76,6 +76,10 @@ type SeekBody struct {
 	Skip int `json:"skip"`
 }
 
+type SetQueueIndexBody struct {
+	Index int `json:"index"`
+}
+
 var _ broker.EventData = (*QueueChangedEvent)(nil)
 
 type QueueChangedEvent struct{}
@@ -220,6 +224,24 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				}
 
 				app.Player().Seek(time.Duration(body.Skip) * time.Second)
+
+				return nil, nil
+			},
+		},
+
+		pyrin.ApiHandler{
+			Name:     "SetQueueIndex",
+			Method:   "POST",
+			Path:     "/player/queueIndex",
+			BodyType: SetQueueIndexBody{},
+			HandlerFunc: func(c pyrin.Context) (any, error) {
+				body, err := pyrin.Body[SetQueueIndexBody](c)
+				if err != nil {
+					return nil, err
+				}
+
+				app.Player().PrepareChange()
+				app.Player().SetQueueIndex(body.Index)
 
 				return nil, nil
 			},

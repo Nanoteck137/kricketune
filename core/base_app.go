@@ -112,6 +112,17 @@ type DwebbleQueue struct {
 	tracks []player.Track
 }
 
+func (q *DwebbleQueue) SetQueueIndex(index int) {
+	if index < 0 {
+		index = 0
+	}
+
+	if index >= len(q.tracks) {
+		index = len(q.tracks) - 1
+	}
+
+	q.index = index
+}
 
 func NewDwebbleQueue(app App, client *api.Client) *DwebbleQueue {
 	return &DwebbleQueue{

@@ -59,6 +59,10 @@ export class ApiClient extends BaseApiClient {
     return this.request("/api/v1/player/seek", "POST", z.undefined(), z.any(), body, options)
   }
   
+  setQueueIndex(body: api.SetQueueIndexBody, options?: ExtraOptions) {
+    return this.request("/api/v1/player/queueIndex", "POST", z.undefined(), z.any(), body, options)
+  }
+  
 }
 
 export class ClientUrls {
@@ -114,6 +118,10 @@ export class ClientUrls {
   
   seek() {
     return createUrl(this.baseUrl, "/api/v1/player/seek")
+  }
+  
+  setQueueIndex() {
+    return createUrl(this.baseUrl, "/api/v1/player/queueIndex")
   }
   
   sseHandler() {

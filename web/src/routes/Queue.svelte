@@ -44,6 +44,9 @@
           ? "rounded bg-primary text-primary-foreground"
           : "hover:bg-accent hover:text-accent-foreground",
       )}
+      onclick={() => {
+        apiClient.setQueueIndex({ index: i });
+      }}
     >
       <img
         class="aspect-square w-12 rounded object-cover"
