@@ -20,6 +20,12 @@
   const { apiClient, status }: Props = $props();
 </script>
 
+<p class="line-clamp-1 text-center text-lg">
+  {status?.currentListName}
+</p>
+
+<div class="h-4"></div>
+
 <div class="flex justify-center">
   <img class="aspect-square w-52" src={status?.currentTrack.coverUrl} alt="" />
 </div>

@@ -98,6 +98,16 @@
           "name": "duration",
           "type": "int",
           "omitEmpty": false
+        },
+        {
+          "name": "currentListName",
+          "type": "string",
+          "omitEmpty": false
+        },
+        {
+          "name": "currentListId",
+          "type": "string",
+          "omitEmpty": false
         }
       ]
     },

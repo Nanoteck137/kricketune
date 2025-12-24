@@ -14,6 +14,7 @@ import (
 )
 
 type List interface {
+	GetId() string
 	GetName() string
 	LoadTracks() ([]player.Track, error)
 }
@@ -23,8 +24,13 @@ var _ List = (*Playlist)(nil)
 type Playlist struct {
 	client *api.Client
 
-	Id   string
-	Name string
+	Id     string
+	FullId string
+	Name   string
+}
+
+func (p Playlist) GetId() string {
+	return p.FullId
 }
 
 func (p Playlist) GetName() string {
@@ -63,8 +69,13 @@ var _ List = (*Taglist)(nil)
 type Taglist struct {
 	client *api.Client
 
-	Id   string
-	Name string
+	Id     string
+	FullId string
+	Name   string
+}
+
+func (p Taglist) GetId() string {
+	return p.FullId
 }
 
 func (p Taglist) GetName() string {
@@ -105,7 +116,8 @@ type DwebbleQueue struct {
 	client *api.Client
 
 	// TODO(patrik): Make private?
-	Lists map[string]List
+	Lists         map[string]List
+	currentListId string
 
 	mux    sync.RWMutex
 	index  int
@@ -139,6 +151,9 @@ type QueueStatus struct {
 	Index        int
 	NumTracks    int
 	CurrentTrack player.Track
+
+	CurrentListName string
+	CurrentListId   string
 }
 
 func (q *DwebbleQueue) LoadList(list List) error {
@@ -152,6 +167,7 @@ func (q *DwebbleQueue) LoadList(list List) error {
 
 	q.index = 0
 	q.tracks = tracks
+	q.currentListId = list.GetId()
 
 	q.app.OnQueueChanged().Call(context.TODO(), &OnQueueChangedEvent{})
 
@@ -170,12 +186,13 @@ func (q *DwebbleQueue) FetchLists() error {
 	}
 
 	for _, playlist := range playlists.Playlists {
-		id := "playlist:" + playlist.Id
+		fullId := "playlist:" + playlist.Id
 		name := fmt.Sprintf("Playlist - %s", playlist.Name)
 
-		q.Lists[id] = Playlist{
+		q.Lists[fullId] = Playlist{
 			client: q.client,
 			Id:     playlist.Id,
+			FullId: fullId,
 			Name:   name,
 		}
 	}
@@ -186,12 +203,13 @@ func (q *DwebbleQueue) FetchLists() error {
 	}
 
 	for _, taglist := range taglists.Taglists {
-		id := "taglist:" + taglist.Id
+		fullId := "taglist:" + taglist.Id
 		name := fmt.Sprintf("Taglist - %s", taglist.Name)
 
-		q.Lists[id] = Taglist{
+		q.Lists[fullId] = Taglist{
 			client: q.client,
 			Id:     taglist.Id,
+			FullId: fullId,
 			Name:   name,
 		}
 	}
@@ -209,10 +227,17 @@ func (q *DwebbleQueue) GetStatus() QueueStatus {
 		currentTrack = q.tracks[q.index]
 	}
 
+	var listName string
+	if q.currentListId != "" {
+		listName = q.Lists[q.currentListId].GetName()
+	}
+
 	return QueueStatus{
-		Index:        q.index,
-		NumTracks:    len(q.tracks),
-		CurrentTrack: currentTrack,
+		Index:           q.index,
+		NumTracks:       len(q.tracks),
+		CurrentTrack:    currentTrack,
+		CurrentListName: listName,
+		CurrentListId:   q.currentListId,
 	}
 }
 

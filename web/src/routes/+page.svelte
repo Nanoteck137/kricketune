@@ -193,7 +193,7 @@
   {/if}
 
   {#if tab === "list"}
-    <ListTab {apiClient} {lists} />
+    <ListTab {apiClient} {status} {lists} />
   {/if}
 
   {#if tab === "queue"}

@@ -69,6 +69,10 @@ export const Status = z.object({
   "position": z.number(),
   // Name: Status.duration
   "duration": z.number(),
+  // Name: Status.currentListName
+  "currentListName": z.string(),
+  // Name: Status.currentListId
+  "currentListId": z.string(),
 });
 export type Status = z.infer<typeof Status>;
 

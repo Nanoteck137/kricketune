@@ -1,15 +1,15 @@
 <script lang="ts">
   import { cn } from "$lib";
   import type { ApiClient } from "$lib/api/client";
-  import type { List, Status, Track } from "$lib/api/types";
-  import { Button } from "@nanoteck137/nano-ui";
+  import type { List, Status } from "$lib/api/types";
 
   type Props = {
     apiClient: ApiClient;
+    status?: Status;
     lists: List[];
   };
 
-  const { apiClient, lists }: Props = $props();
+  const { apiClient, status, lists }: Props = $props();
 </script>
 
 <div class="flex items-center justify-between border-b pb-4">
@@ -25,10 +25,10 @@
     {#each lists as list}
       <button
         class={cn(
-          "flex w-full gap-4 border-b p-3 hover:bg-accent hover:text-accent-foreground",
-          // i === status?.queueIndex
-          //   ? "rounded bg-primary text-primary-foreground"
-          //   : "hover:bg-accent hover:text-accent-foreground",
+          "flex w-full gap-4 border-b p-3",
+          status?.currentListId === list.id
+            ? "rounded bg-primary text-primary-foreground"
+            : "hover:bg-accent hover:text-accent-foreground",
         )}
         onclick={async () => {
           await apiClient.loadList(list.id);

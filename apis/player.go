@@ -51,6 +51,9 @@ type Status struct {
 
 	Position int64 `json:"position"`
 	Duration int64 `json:"duration"`
+
+	CurrentListName string `json:"currentListName"`
+	CurrentListId   string `json:"currentListId"`
 }
 
 var _ broker.EventData = (*StatusEvent)(nil)
@@ -117,6 +120,8 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 						NumTracks:    queueStatus.NumTracks,
 						Position:     position / int64(time.Millisecond),
 						Duration:     duration / int64(time.Millisecond),
+						CurrentListName: queueStatus.CurrentListName,
+						CurrentListId:   queueStatus.CurrentListId,
 					}
 
 					b.EmitEvent(StatusEvent{
@@ -147,14 +152,16 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 				track := ConvertPlayerTrackToTrack(queueStatus.CurrentTrack)
 
 				return Status{
-					CurrentTrack: track,
-					IsPlaying:    app.Player().IsPlaying(),
-					Volume:       app.Player().GetVolume(),
-					Mute:         app.Player().GetMute(),
-					QueueIndex:   queueStatus.Index,
-					NumTracks:    queueStatus.NumTracks,
-					Position:     position / int64(time.Millisecond),
-					Duration:     duration / int64(time.Millisecond),
+					CurrentTrack:    track,
+					IsPlaying:       app.Player().IsPlaying(),
+					Volume:          app.Player().GetVolume(),
+					Mute:            app.Player().GetMute(),
+					QueueIndex:      queueStatus.Index,
+					NumTracks:       queueStatus.NumTracks,
+					Position:        position / int64(time.Millisecond),
+					Duration:        duration / int64(time.Millisecond),
+					CurrentListName: queueStatus.CurrentListName,
+					CurrentListId:   queueStatus.CurrentListId,
 				}, nil
 			},
 		},
