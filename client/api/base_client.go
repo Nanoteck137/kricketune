@@ -10,46 +10,63 @@ import (
 	"strings"
 )
 
+type URL = url.URL
+
+type ClientUrls struct {
+	addr string
+}
+
+func (c *ClientUrls) getUrl(path string) (*url.URL, error) {
+	return createUrlBase(c.addr, path, nil)
+}
+
 type Client struct {
-	addr      string
-	authToken string
-	apiToken  string
+	Url     ClientUrls
+	Headers http.Header
+	addr    string
 }
 
 func New(addr string) *Client {
 	return &Client{
-		addr: addr,
+		Url: ClientUrls{
+			addr: addr,
+		},
+		Headers: map[string][]string{},
+		addr:    addr,
 	}
 }
 
-func (c *Client) SetAuthToken(token string) {
-	c.authToken = token
-}
-
-func (c *Client) SetApiToken(token string) {
-	c.apiToken = token
-}
-
 type Options struct {
-	QueryParams map[string]string
-	Boundary    string
+	Query  url.Values
+	Header http.Header
 }
 
-func createUrl(addr, path string, query map[string]string) (string, error) {
+func createUrlBase(addr, path string, query url.Values) (*url.URL, error) {
 	u, err := url.Parse(addr)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	u.Path = path
 
-	params := u.Query()
-	for k, v := range query {
-		params.Set(k, v)
+	if query != nil {
+		params := u.Query()
+		for k, v := range query {
+			params[k] = v
+		}
+		u.RawQuery = params.Encode()
 	}
-	u.RawQuery = params.Encode()
 
-	return u.String(), nil
+	return u, nil
+}
+
+func createUrl(addr, path string, query url.Values) (string, error) {
+	url, err := createUrlBase(addr, path, query)
+	if err != nil {
+		return "", err
+	}
+
+	return url.String(), nil
 }
 
 type ApiError[E any] struct {
@@ -73,26 +90,28 @@ type RequestData struct {
 	Url    string
 	Method string
 
-	AuthToken string
-	ApiToken  string
-	Body      any
+	ClientHeaders http.Header
+	Headers       http.Header
 }
 
-func rawRequest(data *RequestData, contentType string, bodyReader io.Reader) (*http.Response, error) {
+func rawRequest(
+	data *RequestData,
+	contentType string,
+	bodyReader io.Reader,
+) (*http.Response, error) {
 	req, err := http.NewRequest(data.Method, data.Url, bodyReader)
 	if err != nil {
 		return nil, err
 	}
 
-	if data.AuthToken != "" {
-		req.Header.Add("Authorization", "Bearer "+data.AuthToken)
+	newHeaders := data.ClientHeaders.Clone()
+	newHeaders.Set("Content-Type", contentType)
+
+	for k, v := range data.Headers {
+		newHeaders[k] = v
 	}
 
-	if data.ApiToken != "" {
-		req.Header.Add("X-Api-Token", data.ApiToken)
-	}
-
-	req.Header.Set("Content-Type", contentType)
+	req.Header = newHeaders
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -102,13 +121,13 @@ func rawRequest(data *RequestData, contentType string, bodyReader io.Reader) (*h
 	return resp, nil
 }
 
-func Request[D any](data RequestData) (*D, error) {
+func Request[D any](data RequestData, body any) (*D, error) {
 	var bodyReader io.Reader
 
-	if data.Body != nil {
+	if body != nil {
 		buf := bytes.Buffer{}
 
-		err := json.NewEncoder(&buf).Encode(data.Body)
+		err := json.NewEncoder(&buf).Encode(body)
 		if err != nil {
 			return nil, err
 		}

@@ -38,7 +38,8 @@ func (p Playlist) GetName() string {
 }
 
 func (p Playlist) LoadTracks() ([]player.Track, error) {
-	items, err := p.client.GetMediaFromPlaylist(p.Id, api.GetMediaFromPlaylistBody{Shuffle: true}, api.Options{})
+	// items, err := p.client.GetMediaFromPlaylist(p.Id, api.GetMediaFromPlaylistBody{Shuffle: true}, api.Options{})
+	items, err := p.client.GetPlaylistItems(p.Id, api.Options{})
 	if err != nil {
 		return nil, err
 	}
@@ -52,12 +53,15 @@ func (p Playlist) LoadTracks() ([]player.Track, error) {
 			artists[i] = artist.Name
 		}
 
+		// TODO(patrik): I don't handle the error here
+		uri, _ := p.client.Url.StreamTrack(t.Id)
+
 		tracks[i] = player.Track{
-			Name:     t.Track.Name,
+			Name:     t.Name,
 			Artists:  artists,
-			Album:    t.Album.Name,
+			Album:    t.AlbumName,
 			CoverUrl: t.CoverArt.Original,
-			Uri:      t.MediaUrl,
+			Uri:      uri.String(),
 		}
 	}
 
@@ -83,30 +87,32 @@ func (p Taglist) GetName() string {
 }
 
 func (p Taglist) LoadTracks() ([]player.Track, error) {
-	items, err := p.client.GetMediaFromTaglist(p.Id, api.GetMediaFromTaglistBody{Shuffle: true}, api.Options{})
-	if err != nil {
-		return nil, err
-	}
+	return []player.Track{}, nil
 
-	tracks := make([]player.Track, len(items.Items))
-
-	for i, t := range items.Items {
-		artists := make([]string, len(t.Artists))
-
-		for i, artist := range t.Artists {
-			artists[i] = artist.Name
-		}
-
-		tracks[i] = player.Track{
-			Name:     t.Track.Name,
-			Artists:  artists,
-			Album:    t.Album.Name,
-			CoverUrl: t.CoverArt.Original,
-			Uri:      t.MediaUrl,
-		}
-	}
-
-	return tracks, nil
+	// items, err := p.client.GetMediaFromTaglist(p.Id, api.GetMediaFromTaglistBody{Shuffle: true}, api.Options{})
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	// tracks := make([]player.Track, len(items.Items))
+	//
+	// for i, t := range items.Items {
+	// 	artists := make([]string, len(t.Artists))
+	//
+	// 	for i, artist := range t.Artists {
+	// 		artists[i] = artist.Name
+	// 	}
+	//
+	// 	tracks[i] = player.Track{
+	// 		Name:     t.Track.Name,
+	// 		Artists:  artists,
+	// 		Album:    t.Album.Name,
+	// 		CoverUrl: t.CoverArt.Original,
+	// 		Uri:      t.MediaUrl,
+	// 	}
+	// }
+	//
+	// return tracks, nil
 }
 
 var _ player.Queue = (*DwebbleQueue)(nil)
@@ -197,22 +203,22 @@ func (q *DwebbleQueue) FetchLists() error {
 		}
 	}
 
-	taglists, err := q.client.GetTaglists(api.Options{})
-	if err != nil {
-		return err
-	}
-
-	for _, taglist := range taglists.Taglists {
-		fullId := "taglist:" + taglist.Id
-		name := fmt.Sprintf("Taglist - %s", taglist.Name)
-
-		q.Lists[fullId] = Taglist{
-			client: q.client,
-			Id:     taglist.Id,
-			FullId: fullId,
-			Name:   name,
-		}
-	}
+	// taglists, err := q.client.GetTaglists(api.Options{})
+	// if err != nil {
+	// 	return err
+	// }
+	//
+	// for _, taglist := range taglists.Taglists {
+	// 	fullId := "taglist:" + taglist.Id
+	// 	name := fmt.Sprintf("Taglist - %s", taglist.Name)
+	//
+	// 	q.Lists[fullId] = Taglist{
+	// 		client: q.client,
+	// 		Id:     taglist.Id,
+	// 		FullId: fullId,
+	// 		Name:   name,
+	// 	}
+	// }
 
 	return nil
 }
@@ -306,7 +312,7 @@ type BaseApp struct {
 }
 
 func NewBaseApp(config *config.Config) *BaseApp {
-	client := api.New(config.DwebbleAddress)
+	client := api.New(config.ApiAddress)
 
 	app := &BaseApp{
 		config: config,
@@ -328,17 +334,21 @@ func (app *BaseApp) Bootstrap() error {
 		return fmt.Errorf("Failed to create audio player: %w", err)
 	}
 
-	app.queue.client.SetApiToken(app.config.ApiToken)
+	// Setup the API Token
+	app.queue.client.Headers.Set("X-Api-Token", app.config.ApiToken)
 
 	user, err := app.queue.client.GetMe(api.Options{})
 	if err == nil {
 		app.user = &User{
-			Username:        user.Username,
+			Username:        "REMOVE ME",
 			DisplayName:     user.DisplayName,
 			QuickPlaylistId: user.QuickPlaylist,
 		}
 
-		app.queue.FetchLists()
+		err = app.queue.FetchLists()
+		if err != nil {
+			return err
+		}
 	}
 
 	// NOTE(patrik): Setting default values

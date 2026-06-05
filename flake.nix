@@ -1,5 +1,5 @@
 {
-  description = "Music/Radio player for dwebble";
+  description = "Music/Radio player for tunebook";
 
   inputs = {
     nixpkgs.url      = "github:NixOS/nixpkgs/nixos-unstable";
@@ -8,13 +8,10 @@
     gitignore.url = "github:hercules-ci/gitignore.nix";
     gitignore.inputs.nixpkgs.follows = "nixpkgs";
 
-    devtools.url     = "github:nanoteck137/devtools";
-    devtools.inputs.nixpkgs.follows = "nixpkgs";
-
-    pyrin.url = "github:nanoteck137/pyrin";
+    versionctl.url = "github:nanoteck137/versionctl/0.3.0";
   };
 
-  outputs = { self, nixpkgs, flake-utils, gitignore, devtools, pyrin, ... }:
+  outputs = { self, nixpkgs, flake-utils, gitignore, ... }@inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [];
@@ -58,7 +55,7 @@
           vendorHash = "sha256-RjN7azQ2TmU+2/+VhBg5eoDHTBvc9XX6A8bLBhI9ogA=";
         };
 
-        frontend = pkgs.buildNpmPackage {
+        web = pkgs.buildNpmPackage {
           name = "kricketune-web";
           version = fullVersion;
 
@@ -80,13 +77,11 @@
             runHook postInstall
           '';
         };
-
-        tools = devtools.packages.${system};
       in
       {
         packages = {
           default = backend;
-          inherit backend frontend;
+          inherit backend web;
         };
 
         devShells.default = pkgs.mkShell {
@@ -97,11 +92,7 @@
             go
             gopls
             nodejs
-            typescript
-            typescript-language-server
-            svelte-language-server
-
-            pyrin.packages.${system}.default
+            just
 
             pkg-config
             gst_all_1.gstreamer
@@ -114,7 +105,7 @@
             glib-networking
             openssl
 
-            tools.publishVersion
+            inputs.versionctl.packages.${system}.default
           ];
         };
       }

@@ -1,5 +1,5 @@
 # kricketune
-Music/Radio player for dwebble
+Music/Radio player for tunebook
 
 ## TODO
 - [ ] Snapcast Support
@@ -10,4 +10,4 @@ Music/Radio player for dwebble
 - [x] Show track cover art
 - [ ] Change the frontend to use SPA mode
 - [ ] Update Pyrin
-- [ ] Use the pyrin exeutable and generate the api client for dwebble
+- [ ] Use the pyrin exeutable and generate the api client for tunebook

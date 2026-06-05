@@ -10,11 +10,11 @@ import (
 )
 
 type Config struct {
-	ListenAddr     string      `mapstructure:"listen_addr"`
-	DataDir        string      `mapstructure:"data_dir"`
-	DwebbleAddress string      `mapstructure:"dwebble_address"`
-	ApiToken       string      `mapstructure:"api_token"`
-	AudioOutput    string      `mapstructure:"audio_output"`
+	ListenAddr  string `mapstructure:"listen_addr"`
+	DataDir     string `mapstructure:"data_dir"`
+	ApiAddress  string `mapstructure:"api_address"`
+	ApiToken    string `mapstructure:"api_token"`
+	AudioOutput string `mapstructure:"audio_output"`
 }
 
 func (c *Config) WorkDir() types.WorkDir {
@@ -24,7 +24,7 @@ func (c *Config) WorkDir() types.WorkDir {
 func setDefaults() {
 	viper.SetDefault("listen_addr", ":3000")
 	viper.BindEnv("data_dir")
-	viper.BindEnv("dwebble_address")
+	viper.BindEnv("api_address")
 	viper.BindEnv("api_token")
 	viper.SetDefault("audio_output", "autoaudiosink")
 }
@@ -42,7 +42,7 @@ func validateConfig(config *Config) {
 	// NOTE(patrik): Has default value, here for completeness
 	validate(config.ListenAddr == "", "listen_addr needs to be set")
 	validate(config.DataDir == "", "data_dir needs to be set")
-	validate(config.DwebbleAddress == "", "dwebble_address needs to be set")
+	validate(config.ApiAddress == "", "api_address needs to be set")
 	// validate(config.ApiToken == "", "api_token needs to be set")
 	validate(config.AudioOutput == "", "audio_output needs to be set")
 
