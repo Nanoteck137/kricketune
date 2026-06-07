@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { ApiClient } from "$lib/api/client.js";
   import { Status, Track, type List } from "$lib/api/types.js";
   import { onMount } from "svelte";
-  import { cn } from "$lib";
+  import { cn, getApiClient, handleApiError } from "$lib";
   import { z } from "zod";
   import Player from "./Player.svelte";
   import Queue from "./Queue.svelte";
   import ListTab from "./List.svelte";
 
   const { data } = $props();
-  const apiClient = new ApiClient(data.apiAddress);
+
+  const apiClient = getApiClient();
 
   let tab = $state<"player" | "list" | "queue" | "snapcast">("player");
 
@@ -20,8 +20,7 @@
   async function getLists() {
     const res = await apiClient.getLists();
     if (!res.success) {
-      console.error(res.error);
-      return;
+      return handleApiError(res.error);
     }
 
     lists = res.data.lists;
@@ -30,8 +29,7 @@
   async function getQueue() {
     const res = await apiClient.getQueue();
     if (!res.success) {
-      console.error(res.error);
-      return;
+      return handleApiError(res.error);
     }
 
     queue = res.data.tracks;

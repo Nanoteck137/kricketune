@@ -13,8 +13,7 @@
   },
   "devDependencies": {
     "@nanoteck137/nano-ui": "^0.0.1",
-    "@sveltejs/adapter-auto": "^3.0.0",
-    "@sveltejs/adapter-node": "^5.2.0",
+    "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.5.27",
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
     "@types/eslint": "^9.6.0",
@@ -31,6 +30,7 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
+    "svelte-5-french-toast": "^2.0.1",
     "tailwind-merge": "^2.5.4",
     "tailwind-variants": "^0.3.0",
     "tailwindcss": "^3.4.7",
