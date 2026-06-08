@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"slices"
 	"sync"
 
@@ -27,19 +28,26 @@ type Playlist struct {
 	Id     string
 	FullId string
 	Name   string
+
+	Filter string
 }
 
-func (p Playlist) GetId() string {
+func (p *Playlist) GetId() string {
 	return p.FullId
 }
 
-func (p Playlist) GetName() string {
+func (p *Playlist) GetName() string {
 	return p.Name
 }
 
-func (p Playlist) LoadTracks() ([]player.Track, error) {
+func (p *Playlist) LoadTracks() ([]player.Track, error) {
 	// items, err := p.client.GetMediaFromPlaylist(p.Id, api.GetMediaFromPlaylistBody{Shuffle: true}, api.Options{})
-	items, err := p.client.GetPlaylistItems(p.Id, api.Options{})
+	items, err := p.client.GetPlaylistItems(p.Id, api.Options{
+		Query: url.Values{
+			"filter":  []string{p.Filter},
+			"perPage": []string{"999999"},
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -68,53 +76,6 @@ func (p Playlist) LoadTracks() ([]player.Track, error) {
 	return tracks, nil
 }
 
-var _ List = (*Taglist)(nil)
-
-type Taglist struct {
-	client *api.Client
-
-	Id     string
-	FullId string
-	Name   string
-}
-
-func (p Taglist) GetId() string {
-	return p.FullId
-}
-
-func (p Taglist) GetName() string {
-	return p.Name
-}
-
-func (p Taglist) LoadTracks() ([]player.Track, error) {
-	return []player.Track{}, nil
-
-	// items, err := p.client.GetMediaFromTaglist(p.Id, api.GetMediaFromTaglistBody{Shuffle: true}, api.Options{})
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// tracks := make([]player.Track, len(items.Items))
-	//
-	// for i, t := range items.Items {
-	// 	artists := make([]string, len(t.Artists))
-	//
-	// 	for i, artist := range t.Artists {
-	// 		artists[i] = artist.Name
-	// 	}
-	//
-	// 	tracks[i] = player.Track{
-	// 		Name:     t.Track.Name,
-	// 		Artists:  artists,
-	// 		Album:    t.Album.Name,
-	// 		CoverUrl: t.CoverArt.Original,
-	// 		Uri:      t.MediaUrl,
-	// 	}
-	// }
-	//
-	// return tracks, nil
-}
-
 var _ player.Queue = (*DwebbleQueue)(nil)
 
 type DwebbleQueue struct {
@@ -122,12 +83,18 @@ type DwebbleQueue struct {
 	client *api.Client
 
 	// TODO(patrik): Make private?
-	Lists         map[string]List
+	Lists         []List
+	ListsById     map[string]List
 	currentListId string
 
 	mux    sync.RWMutex
 	index  int
 	tracks []player.Track
+}
+
+func (q *DwebbleQueue) addList(list List) {
+	q.Lists = append(q.Lists, list)
+	q.ListsById[list.GetId()] = list
 }
 
 func (q *DwebbleQueue) SetQueueIndex(index int) {
@@ -144,12 +111,13 @@ func (q *DwebbleQueue) SetQueueIndex(index int) {
 
 func NewDwebbleQueue(app App, client *api.Client) *DwebbleQueue {
 	return &DwebbleQueue{
-		app:    app,
-		client: client,
-		Lists:  map[string]List{},
-		mux:    sync.RWMutex{},
-		index:  0,
-		tracks: []player.Track{},
+		app:       app,
+		client:    client,
+		Lists:     []List{},
+		ListsById: map[string]List{},
+		mux:       sync.RWMutex{},
+		index:     0,
+		tracks:    []player.Track{},
 	}
 }
 
@@ -186,39 +154,35 @@ func (q *DwebbleQueue) FetchLists() error {
 
 	clear(q.Lists)
 
+	filters, err := q.client.GetUserTrackFilters(q.app.User().Id, api.Options{})
+	if err != nil {
+		// TODO(patrik): Handle error
+		return err
+	}
+
 	playlists, err := q.client.GetPlaylists(api.Options{})
 	if err != nil {
 		return err
 	}
 
 	for _, playlist := range playlists.Playlists {
-		fullId := "playlist:" + playlist.Id
-		name := fmt.Sprintf("Playlist - %s", playlist.Name)
-
-		q.Lists[fullId] = Playlist{
+		q.addList(&Playlist{
 			client: q.client,
 			Id:     playlist.Id,
-			FullId: fullId,
-			Name:   name,
+			FullId: "playlist:" + playlist.Id,
+			Name:   fmt.Sprintf("Playlist - %s", playlist.Name),
+		})
+
+		for _, filter := range filters.Filters {
+			q.addList(&Playlist{
+				client: q.client,
+				Id:     playlist.Id,
+				FullId: "playlist:" + playlist.Id + ":" + filter.FilterId,
+				Name:   fmt.Sprintf("Playlist - %s (%s)", playlist.Name, filter.Name),
+				Filter: filter.Filter,
+			})
 		}
 	}
-
-	// taglists, err := q.client.GetTaglists(api.Options{})
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// for _, taglist := range taglists.Taglists {
-	// 	fullId := "taglist:" + taglist.Id
-	// 	name := fmt.Sprintf("Taglist - %s", taglist.Name)
-	//
-	// 	q.Lists[fullId] = Taglist{
-	// 		client: q.client,
-	// 		Id:     taglist.Id,
-	// 		FullId: fullId,
-	// 		Name:   name,
-	// 	}
-	// }
 
 	return nil
 }
@@ -235,7 +199,7 @@ func (q *DwebbleQueue) GetStatus() QueueStatus {
 
 	var listName string
 	if q.currentListId != "" {
-		listName = q.Lists[q.currentListId].GetName()
+		listName = q.ListsById[q.currentListId].GetName()
 	}
 
 	return QueueStatus{
@@ -305,7 +269,7 @@ type BaseApp struct {
 	player *player.Player
 
 	client *api.Client
-	user   *User
+	user   *api.GetMe
 	queue  *DwebbleQueue
 
 	onQueueChanged *hook.Hook[*OnQueueChangedEvent]
@@ -339,11 +303,7 @@ func (app *BaseApp) Bootstrap() error {
 
 	user, err := app.queue.client.GetMe(api.Options{})
 	if err == nil {
-		app.user = &User{
-			Username:        "REMOVE ME",
-			DisplayName:     user.DisplayName,
-			QuickPlaylistId: user.QuickPlaylist,
-		}
+		app.user = user
 
 		err = app.queue.FetchLists()
 		if err != nil {
@@ -365,8 +325,8 @@ func (app *BaseApp) Bootstrap() error {
 	return nil
 }
 
-func (app *BaseApp) User() *User {
-	return nil
+func (app *BaseApp) User() *api.GetMe {
+	return app.user
 }
 
 func (app *BaseApp) Queue() *DwebbleQueue {

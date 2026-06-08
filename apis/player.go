@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"sort"
 	"time"
 
 	"github.com/nanoteck137/kricketune/core"
@@ -296,16 +295,12 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 					Lists: make([]List, 0, len(queue.Lists)),
 				}
 
-				for id, list := range queue.Lists {
+				for _, list := range queue.Lists {
 					res.Lists = append(res.Lists, List{
-						Id:   id,
+						Id:   list.GetId(),
 						Name: list.GetName(),
 					})
 				}
-
-				sort.Slice(res.Lists, func(i, j int) bool {
-					return res.Lists[i].Name < res.Lists[j].Name
-				})
 
 				return res, nil
 			},
@@ -319,20 +314,22 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 			HandlerFunc: func(c pyrin.Context) (any, error) {
 				queue := app.Queue()
 
+				err := queue.FetchLists()
+				if err != nil {
+					// TODO(patrik): Handle error
+					return nil, err
+				}
+
 				res := GetLists{
 					Lists: make([]List, 0, len(queue.Lists)),
 				}
 
-				for id, list := range queue.Lists {
+				for _, list := range queue.Lists {
 					res.Lists = append(res.Lists, List{
-						Id:   id,
+						Id:   list.GetId(),
 						Name: list.GetName(),
 					})
 				}
-
-				sort.Slice(res.Lists, func(i, j int) bool {
-					return res.Lists[i].Name < res.Lists[j].Name
-				})
 
 				return res, nil
 			},
@@ -347,7 +344,7 @@ func InstallPlayerHandlers(app core.App, group pyrin.Group) {
 
 				queue := app.Queue()
 
-				list, exists := queue.Lists[id]
+				list, exists := queue.ListsById[id]
 				if !exists {
 					// TODO(patrik): Error
 					return nil, errors.New("No list with id")
