@@ -72,11 +72,41 @@
             runHook postInstall
           '';
         };
+
+        docker = pkgs.dockerTools.buildLayeredImage {
+          name = "kricketune";
+          tag  = fullVersion;
+
+          contents = [
+            pkgs.dockerTools.caCertificates
+            web
+            backend
+          ];
+
+          extraCommands = ''
+            mkdir -p data
+          '';
+
+          config = {
+            Entrypoint   = [ "/bin/kricketune" ];
+            Cmd = [ "serve" ];
+            WorkingDir = "/data";
+
+            ExposedPorts = { 
+              "3000/tcp" = {}; 
+            };
+
+            Env = [
+              "TUNEBOOK_WEB=${web}"
+              "TUNEBOOK_DATA_DIR=/data"
+            ];
+          };
+        };
       in
       {
         packages = {
           default = backend;
-          inherit backend web;
+          inherit backend web docker;
         };
 
         devShells.default = pkgs.mkShell {
