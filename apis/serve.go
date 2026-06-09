@@ -9,6 +9,10 @@ import (
 	"github.com/nanoteck137/pyrin"
 )
 
+func RegisterApiHandlers(app core.App, g pyrin.Group) {
+	InstallPlayerHandlers(app, g)
+}
+
 func RegisterStaticHandlers(app core.App, g pyrin.Group) {
 	g.Register(
 		pyrin.NormalHandler{
@@ -39,8 +43,9 @@ func RegisterStaticHandlers(app core.App, g pyrin.Group) {
 }
 
 func RegisterHandlers(app core.App, router pyrin.Router) {
-	g := router.Group("/api/v1")
-	InstallHandlers(app, g)
+	RegisterStaticHandlers(app, router.Group(""))
+
+	RegisterApiHandlers(app, router.Group("/api/v1"))
 }
 
 func Server(app core.App) (*pyrin.Server, error) {
