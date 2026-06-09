@@ -97,8 +97,8 @@
             };
 
             Env = [
-              "TUNEBOOK_WEB=${web}"
-              "TUNEBOOK_DATA_DIR=/data"
+              "KRICKETUNE_WEB=${web}"
+              "KRICKETUNE_DATA_DIR=/data"
             ];
           };
         };
