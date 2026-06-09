@@ -144,6 +144,15 @@ func (p *Player) GetPosition() (int64, int64) {
 }
 
 func (p *Player) Seek(skip time.Duration) {
+	hasPosition, currentPosition := p.playbin.QueryPosition(gst.FormatTime)
+	if hasPosition {
+		seekTime := time.Duration(currentPosition + skip.Nanoseconds())
+		if seekTime <= 0 {
+			seekTime = 0
+		}
+		p.playbin.SeekTime(seekTime, gst.SeekFlagFlush)
+	}
+
 	ok, pos := p.playbin.QueryPosition(gst.FormatTime)
 	if !ok {
 		return
@@ -154,7 +163,7 @@ func (p *Player) Seek(skip time.Duration) {
 	}
 
 	newPos := max(pos + skip.Nanoseconds(), 0)
-	p.playbin.SeekDefault(newPos, gst.SeekFlagFlush|gst.SeekFlagKeyUnit)
+	p.playbin.SeekTime(time.Duration(newPos) * time.Nanosecond, gst.SeekFlagFlush|gst.SeekFlagKeyUnit)
 }
 
 func (p *Player) RewindTrack() {
