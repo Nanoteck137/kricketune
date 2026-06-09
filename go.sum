@@ -60,8 +60,8 @@ github.com/mattn/go-pointer v0.0.1 h1:n+XhsuGeVO6MEAp7xyEukFINEa+Quek5psIR/ylA6o
 github.com/mattn/go-pointer v0.0.1/go.mod h1:2zXcozF6qYGgmsG+SeTZz3oAbFLdD3OWqnUbNvJZAlc=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
-github.com/nanoteck137/pyrin v0.16.0 h1:LRYSLWkQkyoKUiWjv7nbKSdQzLKZw10jaV1/ivny0A8=
-github.com/nanoteck137/pyrin v0.16.0/go.mod h1:EAFQOwTBWkplaCNQ+ZI0jK6atoyNVLFNHscorrAo4iw=
+github.com/nanoteck137/pyrin v0.18.1 h1:KMQ9uXzgcuJvJFTtg9y0e6BBpzwltSLSHgvz0V2+qjk=
+github.com/nanoteck137/pyrin v0.18.1/go.mod h1:EAFQOwTBWkplaCNQ+ZI0jK6atoyNVLFNHscorrAo4iw=
 github.com/nanoteck137/validate v0.0.0-20241129211421-90ceb11de343 h1:EjWdC/+BXfC4YTKxdslWV8rFZXlZ48VAKpDTQs4Lo2U=
 github.com/nanoteck137/validate v0.0.0-20241129211421-90ceb11de343/go.mod h1:+21LcVRcjVhpx5vU3qJZpsJwV4NzAk2MH87WMvhG/sk=
 github.com/pelletier/go-toml/v2 v2.1.0 h1:FnwAJ4oYMvbT/34k9zzHuZNrhlz48GB3/s6at6/MHO4=

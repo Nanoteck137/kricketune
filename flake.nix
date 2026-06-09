@@ -52,7 +52,7 @@
             pkgs.openssl
           ];
 
-          vendorHash = "sha256-RjN7azQ2TmU+2/+VhBg5eoDHTBvc9XX6A8bLBhI9ogA=";
+          vendorHash = "sha256-mJ42IePiYoBgZuLnOuWqIlnPVxDJ/bPhJ+xgaR68L14=";
         };
 
         web = pkgs.buildNpmPackage {
@@ -60,20 +60,15 @@
           version = fullVersion;
 
           src = gitignore.lib.gitignoreSource ./web;
-          npmDepsHash = "sha256-uirrNTJ4eEWPfqoA+hc/UtyeENlNULKF0jVwsK1c/ng=";
+          npmDepsHash = "sha256-PTx2fGsr40oAHEy8bNDQvJxe5Tfy8lzpusBdGKMb0qs=";
 
           PUBLIC_VERSION=version;
-          PUBLIC_COMMIT=self.rev or "dirty";
+          PUBLIC_COMMIT=self.dirtyRev or self.rev or "no-commit";
+          PUBLIC_API_ADDRESS="";
 
           installPhase = ''
             runHook preInstall
             cp -r build $out/
-            echo '{ "type": "module" }' > $out/package.json
-
-            mkdir $out/bin
-            echo -e "#!${pkgs.runtimeShell}\n${pkgs.nodejs}/bin/node $out\n" > $out/bin/kricketune-web
-            chmod +x $out/bin/kricketune-web
-
             runHook postInstall
           '';
         };

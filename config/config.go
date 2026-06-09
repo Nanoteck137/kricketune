@@ -15,6 +15,8 @@ type Config struct {
 	ApiAddress  string `mapstructure:"api_address"`
 	ApiToken    string `mapstructure:"api_token"`
 	AudioOutput string `mapstructure:"audio_output"`
+
+	WebDir string `mapstructure:"web"`
 }
 
 func (c *Config) WorkDir() types.WorkDir {
@@ -27,6 +29,8 @@ func setDefaults() {
 	viper.BindEnv("api_address")
 	viper.BindEnv("api_token")
 	viper.SetDefault("audio_output", "autoaudiosink")
+
+	viper.BindEnv("web")
 }
 
 func validateConfig(config *Config) {
